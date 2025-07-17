@@ -1,0 +1,16 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #232526 0%, #414345 100%);
+  min-height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::-webkit-input-placeholder { color: #d1d1d1; }
+::-moz-placeholder { color: #d1d1d1; }
+:-ms-input-placeholder { color: #d1d1d1; }
+::placeholder { color: #d1d1d1; }

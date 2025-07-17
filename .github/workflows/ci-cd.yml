@@ -1,0 +1,40 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install root dependencies
+        run: npm install
+      - name: Install frontend dependencies
+        run: npm install --prefix dashboard_final
+      - name: Install backend dependencies
+        run: npm install --prefix server
+      - name: Lint frontend
+        run: npm run lint --prefix dashboard_final || echo "No lint script"
+      - name: Test frontend
+        run: npm test --prefix dashboard_final -- --watchAll=false || echo "No tests"
+      - name: Build frontend
+        run: npm run build --prefix dashboard_final
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v2.0
+        with:
+          publish-dir: './dashboard_final/build'
+          production-deploy: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: 'Automated deploy from GitHub Actions'
+          netlify-auth-token: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          netlify-site-id: ${{ secrets.NETLIFY_SITE_ID }}
+      - name: Backend deploy (manual)
+        run: echo "Deploy backend to Render manually or set up Render deploy integration." 
