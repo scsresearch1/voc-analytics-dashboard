@@ -169,9 +169,6 @@ export default function Dashboard() {
   // Helper to get config name from file
   const getConfig = file => file.split('_')[1];
 
-  // Helper to get sensors from header
-  const getSensors = header => header.filter(h => h && !NON_SENSOR_COLUMNS.map(normalize).includes(normalize(h)));
-
   // Render
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: t.bg, color: t.text }}>
