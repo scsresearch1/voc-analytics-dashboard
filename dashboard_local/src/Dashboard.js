@@ -101,7 +101,7 @@ export default function Dashboard() {
     setLoading(true);
     Promise.all(vocFiles.map(file => {
       if (fileCache[file]) return Promise.resolve({ file, data: fileCache[file] });
-      return fetch(`${API_URL}/file?name=${encodeURIComponent(file)}`)
+      return fetch(`${API_URL}/api/file?name=${encodeURIComponent(file)}`)
         .then(res => res.json())
         .then(data => ({ file, data }));
     })).then(results => {
