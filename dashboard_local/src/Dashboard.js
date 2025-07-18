@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Plot from 'react-plotly.js';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://voc-analytics-dashboard.onrender.com';
+const API_URL = process.env.REACT_APP_API_URL || 'https://voc-analytics-dashboard.onrender.com/api';
 const NON_SENSOR_COLUMNS = [
   'SNO', 'Timestamp', 'Phase', 'Heater_Profile', 'Heater_Temparature',
   'Alpha_PID', 'Temp', 'Hum', 'ActiveSensorsArray', 'VOC_Activated',
@@ -80,7 +80,7 @@ export default function Dashboard() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     setLoading(true);
-    fetch(`${API_URL}/files`)
+    fetch(`${API_URL}/api/files`)
       .then(res => res.json())
       .then(files => {
         setFiles(files);
