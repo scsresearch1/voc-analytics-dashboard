@@ -58,6 +58,58 @@ function calcStats(arr) {
   return { mean, median, min, max, std, count: nums.length };
 }
 
+function computeAllStats(data) {
+  if (!data || !data.length) return {};
+  const header = data[0];
+  const rows = data.slice(1).filter(r => r.length > 1);
+  const sensors = header.filter(h => h && !NON_SENSOR_COLUMNS.map(normalize).includes(normalize(h)));
+
+  // Per-sensor stats
+  const sensorStats = {};
+  sensors.forEach(sensor => {
+    const idx = header.findIndex(h => normalize(h) === normalize(sensor));
+    const vals = idx !== -1 ? rows.map(r => Number(r[idx])).filter(v => !isNaN(v)) : [];
+    sensorStats[sensor] = calcStats(vals);
+  });
+
+  // Correlation matrix
+  const sensorCols = sensors.map(s => header.findIndex(h => normalize(h) === normalize(s))).filter(i => i !== -1);
+  const matrix = sensorCols.map(i => sensorCols.map(j => {
+    const xi = rows.map(r => Number(r[i]));
+    const xj = rows.map(r => Number(r[j]));
+    const mean = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
+    const mi = mean(xi), mj = mean(xj);
+    const cov = xi.map((v, idx) => (v - mi) * (xj[idx] - mj)).reduce((a, b) => a + b, 0) / xi.length;
+    const std = arr => Math.sqrt(arr.map(v => (v - mean(arr)) ** 2).reduce((a, b) => a + b, 0) / arr.length);
+    const si = std(xi), sj = std(xj);
+    return (si && sj) ? cov / (si * sj) : 0;
+  }));
+
+  // Boxplot data
+  const boxData = sensors.map(s => {
+    const idx = header.findIndex(h => normalize(h) === normalize(s));
+    if (idx === -1) return null;
+    return {
+      y: rows.map(r => Number(r[idx])).filter(v => !isNaN(v)),
+      type: 'box',
+      name: s,
+    };
+  }).filter(Boolean);
+
+  // Heatmap data
+  const z = sensorCols.map(si => rows.map(r => Number(r[si])));
+
+  return {
+    header,
+    rows,
+    sensors,
+    sensorStats,
+    correlation: { sensors, matrix },
+    boxData,
+    heatmap: { sensors, z, rows }
+  };
+}
+
 // --- Additional Analytics ---
 
 export default function Dashboard() {
@@ -93,7 +145,6 @@ export default function Dashboard() {
   }, []);
 
   // Fetch and cache all files for selected VoC
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!voc) return;
     const vocFiles = files.filter(f => f.startsWith(voc));
@@ -103,7 +154,10 @@ export default function Dashboard() {
       if (fileCache[file]) return Promise.resolve({ file, data: fileCache[file] });
       return fetch(`${API_URL}/api/file?name=${encodeURIComponent(file)}`)
         .then(res => res.json())
-        .then(data => ({ file, data }));
+        .then(data => {
+          const allStats = computeAllStats(data.data || data);
+          return { file, data: allStats };
+        });
     })).then(results => {
       const cache = { ...fileCache };
       results.forEach(({ file, data }) => {
@@ -112,75 +166,14 @@ export default function Dashboard() {
       setFileCache(cache);
       setLoading(false);
     }).catch(() => { setError('Failed to load data'); setLoading(false); });
-  }, [voc, files, fileCache]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [voc, files]);
 
   // Helper to get config name from file
   const getConfig = file => file.split('_')[1];
 
   // Helper to get sensors from header
   const getSensors = header => header.filter(h => h && !NON_SENSOR_COLUMNS.map(normalize).includes(normalize(h)));
-
-  // Calculate Correlation Matrix when needed
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    if (selectedTab !== 'Correlation Matrix' || !voc) return;
-    setMatrixLoading(true);
-    const vocFiles = files.filter(f => f.startsWith(voc));
-    const newData = {};
-    setTimeout(() => {
-      vocFiles.forEach(file => {
-        const data = fileCache[file]?.data || [];
-        if (!data.length) return;
-        const header = data[0];
-        const rows = data.slice(1).filter(r => r.length > 1);
-        const sensors = getSensors(header);
-        const sensorCols = sensors.map(s => header.findIndex(h => normalize(h) === normalize(s))).filter(i => i !== -1);
-        const matrix = sensorCols.map(i => sensorCols.map(j => {
-          const xi = rows.map(r => Number(r[i]));
-          const xj = rows.map(r => Number(r[j]));
-          const mean = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
-          const mi = mean(xi), mj = mean(xj);
-          const cov = xi.map((v, idx) => (v - mi) * (xj[idx] - mj)).reduce((a, b) => a + b, 0) / xi.length;
-          const std = arr => Math.sqrt(arr.map(v => (v - mean(arr)) ** 2).reduce((a, b) => a + b, 0) / arr.length);
-          const si = std(xi), sj = std(xj);
-          return (si && sj) ? cov / (si * sj) : 0;
-        }));
-        newData[file] = { sensors, matrix };
-      });
-      setCorrelationData(newData);
-      setMatrixLoading(false);
-    }, 100); // Simulate async
-  }, [selectedTab, voc, files, fileCache]);
-
-  // Calculate Boxplot Data when needed
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    if (selectedTab !== 'Boxplot' || !voc) return;
-    setBoxplotLoading(true);
-    const vocFiles = files.filter(f => f.startsWith(voc));
-    const newData = {};
-    setTimeout(() => {
-      vocFiles.forEach(file => {
-        const data = fileCache[file]?.data || [];
-        if (!data.length) return;
-        const header = data[0];
-        const rows = data.slice(1).filter(r => r.length > 1);
-        const sensors = getSensors(header);
-        const boxData = sensors.map(s => {
-          const idx = header.findIndex(h => normalize(h) === normalize(s));
-          if (idx === -1) return null;
-          return {
-            y: rows.map(r => Number(r[idx])).filter(v => !isNaN(v)),
-            type: 'box',
-            name: s,
-          };
-        }).filter(Boolean);
-        newData[file] = boxData;
-      });
-      setBoxplotData(newData);
-      setBoxplotLoading(false);
-    }, 100);
-  }, [selectedTab, voc, files, fileCache]);
 
   // Render
   return (
@@ -246,37 +239,28 @@ export default function Dashboard() {
         {loading && <div className="spinner"></div>}
         {error && <div style={{ color: t.error, fontSize: 18, marginTop: 32 }}>{error}</div>}
         {selectedTab === 'Sensor Charts' && files.filter(f => f.startsWith(voc)).map(file => {
-          const data = fileCache[file]?.data || [];
-          if (!data.length) return null;
-          const header = data[0];
-          const rows = data.slice(1).filter(r => r.length > 1);
-          const sensors = getSensors(header);
+          const stats = fileCache[file];
+          if (!stats) return null;
           return (
             <div key={file} style={{ marginBottom: 48 }}>
               <h3 style={{ color: t.accent, marginBottom: 12 }}>{getConfig(file)}</h3>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 32 }}>
-                {sensors.map(sensor => {
-                  const idx = header.findIndex(h => normalize(h) === normalize(sensor));
-                  const sensorVals = idx !== -1 ? rows.map(r => Number(r[idx])).filter(v => !isNaN(v)) : [];
-                  const stats = calcStats(sensorVals);
-                  return (
-                    <div key={sensor} style={{ background: t.grid, borderRadius: 16, padding: 24, color: t.text, minWidth: 320, minHeight: 320, flex: '1 1 320px', display: 'flex', flexDirection: 'column' }}>
-                      <b style={{ marginBottom: 8 }}>{sensor}</b>
-                      <div style={{ fontSize: 14, color: t.accent, marginBottom: 8 }}>Mean: {stats.mean !== '-' ? stats.mean.toFixed(3) : '-'}, Std: {stats.std !== '-' ? stats.std.toFixed(3) : '-'}</div>
-                      <Plot data={[{ x: rows.map((_, i) => i + 1), y: sensorVals, type: 'scatter', mode: 'lines+markers', marker: { color: t.line }, name: sensor }]} layout={{ autosize: true, responsive: true, paper_bgcolor: t.plotBg, plot_bgcolor: t.plotBg, font: { color: t.plotFont }, xaxis: { title: 'Sample Index' }, yaxis: { title: sensor }, margin: { t: 32, l: 48, r: 24, b: 48 } }} useResizeHandler={true} style={{ width: '100%', height: 200 }} />
+                {stats.sensors.map(sensor => (
+                  <div key={sensor} style={{ background: t.grid, borderRadius: 16, padding: 24, color: t.text, minWidth: 320, minHeight: 320, flex: '1 1 320px', display: 'flex', flexDirection: 'column' }}>
+                    <b style={{ marginBottom: 8 }}>{sensor}</b>
+                    <div style={{ fontSize: 14, color: t.accent, marginBottom: 8 }}>
+                      Mean: {stats.sensorStats[sensor].mean !== '-' ? stats.sensorStats[sensor].mean.toFixed(3) : '-'}, Std: {stats.sensorStats[sensor].std !== '-' ? stats.sensorStats[sensor].std.toFixed(3) : '-'}
                     </div>
-                  );
-                })}
+                    <Plot data={[{ x: stats.rows.map((_, i) => i + 1), y: stats.rows.map(r => Number(r[stats.header.findIndex(h => normalize(h) === normalize(sensor))])).filter(v => !isNaN(v)), type: 'scatter', mode: 'lines+markers', marker: { color: t.line }, name: sensor }]} layout={{ autosize: true, responsive: true, paper_bgcolor: t.plotBg, plot_bgcolor: t.plotBg, font: { color: t.plotFont }, xaxis: { title: 'Sample Index' }, yaxis: { title: sensor }, margin: { t: 32, l: 48, r: 24, b: 48 } }} useResizeHandler={true} style={{ width: '100%', height: 200 }} />
+                  </div>
+                ))}
               </div>
             </div>
           );
         })}
         {selectedTab === 'Summary Stats' && files.filter(f => f.startsWith(voc)).map(file => {
-          const data = fileCache[file]?.data || [];
-          if (!data.length) return null;
-          const header = data[0];
-          const rows = data.slice(1).filter(r => r.length > 1);
-          const sensors = getSensors(header);
+          const stats = fileCache[file];
+          if (!stats) return null;
           return (
             <div key={file} style={{ marginBottom: 48 }}>
               <h3 style={{ color: t.accent, marginBottom: 12 }}>{getConfig(file)}</h3>
@@ -293,61 +277,49 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {sensors.map(sensor => {
-                    const idx = header.findIndex(h => normalize(h) === normalize(sensor));
-                    const sensorVals = idx !== -1 ? rows.map(r => Number(r[idx])).filter(v => !isNaN(v)) : [];
-                    const stats = calcStats(sensorVals);
-                    return (
-                      <tr key={sensor}>
-                        <td style={{ padding: 8 }}>{sensor}</td>
-                        <td style={{ padding: 8 }}>{stats.mean !== '-' ? stats.mean.toFixed(3) : '-'}</td>
-                        <td style={{ padding: 8 }}>{stats.median !== '-' ? stats.median.toFixed(3) : '-'}</td>
-                        <td style={{ padding: 8 }}>{stats.min !== '-' ? stats.min.toFixed(3) : '-'}</td>
-                        <td style={{ padding: 8 }}>{stats.max !== '-' ? stats.max.toFixed(3) : '-'}</td>
-                        <td style={{ padding: 8 }}>{stats.std !== '-' ? stats.std.toFixed(3) : '-'}</td>
-                        <td style={{ padding: 8 }}>{stats.count}</td>
-                      </tr>
-                    );
-                  })}
+                  {stats.sensors.map(sensor => (
+                    <tr key={sensor}>
+                      <td style={{ padding: 8 }}>{sensor}</td>
+                      <td style={{ padding: 8 }}>{stats.sensorStats[sensor].mean !== '-' ? stats.sensorStats[sensor].mean.toFixed(3) : '-'}</td>
+                      <td style={{ padding: 8 }}>{stats.sensorStats[sensor].median !== '-' ? stats.sensorStats[sensor].median.toFixed(3) : '-'}</td>
+                      <td style={{ padding: 8 }}>{stats.sensorStats[sensor].min !== '-' ? stats.sensorStats[sensor].min.toFixed(3) : '-'}</td>
+                      <td style={{ padding: 8 }}>{stats.sensorStats[sensor].max !== '-' ? stats.sensorStats[sensor].max.toFixed(3) : '-'}</td>
+                      <td style={{ padding: 8 }}>{stats.sensorStats[sensor].std !== '-' ? stats.sensorStats[sensor].std.toFixed(3) : '-'}</td>
+                      <td style={{ padding: 8 }}>{stats.sensorStats[sensor].count}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
           );
         })}
         {selectedTab === 'Heatmap' && files.filter(f => f.startsWith(voc)).map(file => {
-          const data = fileCache[file]?.data || [];
-          if (!data.length) return null;
-          const header = data[0];
-          const rows = data.slice(1).filter(r => r.length > 1);
-          const sensors = getSensors(header);
-          const sensorCols = sensors.map(s => header.findIndex(h => normalize(h) === normalize(s))).filter(i => i !== -1);
-          const z = sensorCols.map(si => rows.map(r => Number(r[si])));
+          const stats = fileCache[file];
+          if (!stats) return null;
           return (
             <div key={file} style={{ marginBottom: 48 }}>
               <h3 style={{ color: t.accent, marginBottom: 12 }}>{getConfig(file)}</h3>
-              <Plot data={[{ z, x: rows.map((_, i) => i + 1), y: sensors, type: 'heatmap', colorscale: t.heatmap }]} layout={{ autosize: true, responsive: true, paper_bgcolor: t.plotBg, plot_bgcolor: t.plotBg, font: { color: t.plotFont }, xaxis: { title: 'Sample Index' }, yaxis: { title: 'Sensors' }, margin: { t: 32, l: 48, r: 24, b: 48 } }} useResizeHandler={true} style={{ width: '100%', height: 320 }} />
+              <Plot data={[{ z: stats.heatmap.z, x: stats.heatmap.rows.map((_, i) => i + 1), y: stats.heatmap.sensors, type: 'heatmap', colorscale: t.heatmap }]} layout={{ autosize: true, responsive: true, paper_bgcolor: t.plotBg, plot_bgcolor: t.plotBg, font: { color: t.plotFont }, xaxis: { title: 'Sample Index' }, yaxis: { title: 'Sensors' }, margin: { t: 32, l: 48, r: 24, b: 48 } }} useResizeHandler={true} style={{ width: '100%', height: 320 }} />
             </div>
           );
         })}
         {selectedTab === 'Correlation Matrix' && files.filter(f => f.startsWith(voc)).map(file => {
-          if (matrixLoading) return <div className="spinner"></div>;
-          const corr = correlationData[file];
-          if (!corr) return null;
+          const stats = fileCache[file];
+          if (!stats) return null;
           return (
             <div key={file} style={{ marginBottom: 48 }}>
               <h3 style={{ color: t.accent, marginBottom: 12 }}>{getConfig(file)}</h3>
-              <Plot data={[{ z: corr.matrix, x: corr.sensors, y: corr.sensors, type: 'heatmap', colorbar: { title: 'Correlation' }, colorscale: t.corr, zmin: -1, zmax: 1 }]} layout={{ autosize: true, responsive: true, paper_bgcolor: t.plotBg, plot_bgcolor: t.plotBg, font: { color: t.plotFont }, margin: { t: 32, l: 48, r: 24, b: 48 } }} useResizeHandler={true} style={{ width: '100%', height: 320 }} />
+              <Plot data={[{ z: stats.correlation.matrix, x: stats.correlation.sensors, y: stats.correlation.sensors, type: 'heatmap', colorbar: { title: 'Correlation' }, colorscale: t.corr, zmin: -1, zmax: 1 }]} layout={{ autosize: true, responsive: true, paper_bgcolor: t.plotBg, plot_bgcolor: t.plotBg, font: { color: t.plotFont }, margin: { t: 32, l: 48, r: 24, b: 48 } }} useResizeHandler={true} style={{ width: '100%', height: 320 }} />
             </div>
           );
         })}
         {selectedTab === 'Boxplot' && files.filter(f => f.startsWith(voc)).map(file => {
-          if (boxplotLoading) return <div className="spinner"></div>;
-          const box = boxplotData[file];
-          if (!box) return null;
+          const stats = fileCache[file];
+          if (!stats) return null;
           return (
             <div key={file} style={{ marginBottom: 48 }}>
               <h3 style={{ color: t.accent, marginBottom: 12 }}>{getConfig(file)}</h3>
-              <Plot data={box} layout={{ autosize: true, responsive: true, paper_bgcolor: t.plotBg, plot_bgcolor: t.plotBg, font: { color: t.plotFont }, boxmode: 'group', yaxis: { title: 'Sensor Value' }, margin: { t: 32, l: 48, r: 24, b: 48 } }} useResizeHandler={true} style={{ width: '100%', height: 320 }} />
+              <Plot data={stats.boxData} layout={{ autosize: true, responsive: true, paper_bgcolor: t.plotBg, plot_bgcolor: t.plotBg, font: { color: t.plotFont }, boxmode: 'group', yaxis: { title: 'Sensor Value' }, margin: { t: 32, l: 48, r: 24, b: 48 } }} useResizeHandler={true} style={{ width: '100%', height: 320 }} />
             </div>
           );
         })}
