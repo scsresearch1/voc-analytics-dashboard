@@ -187,7 +187,7 @@ export default function Dashboard() {
     <div style={{ display: 'flex', minHeight: '100vh', background: t.bg, color: t.text }}>
       {/* Sidebar */}
       <div style={{ width: 260, background: t.sidebar, color: t.text, padding: 24, display: 'flex', flexDirection: 'column', gap: 24, boxShadow: t.shadow }}>
-        <h2 style={{ fontWeight: 700, fontSize: 24, marginBottom: 8 }}>Analytics</h2>
+        <h2 style={{ fontWeight: 700, fontSize: 24, marginBottom: 8 }}>Sensor Analytics</h2>
         <div>
           <label style={{ fontWeight: 500 }}>VoC</label>
           <select style={{ width: '100%', padding: 10, borderRadius: 8, marginTop: 4, marginBottom: 16 }} value={voc} onChange={e => setVoc(e.target.value)}>
