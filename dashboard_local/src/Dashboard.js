@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+//import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Plot from 'react-plotly.js';
 
 const API_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:4000/api';
@@ -58,36 +59,6 @@ function calcStats(arr) {
 }
 
 // --- Additional Analytics ---
-function getOutliers(arr) {
-  const nums = arr.filter(v => typeof v === 'number' && !isNaN(v));
-  if (!nums.length) return [];
-  const mean = nums.reduce((a, b) => a + b, 0) / nums.length;
-  const std = Math.sqrt(nums.map(x => (x - mean) ** 2).reduce((a, b) => a + b, 0) / nums.length);
-  return nums.map((v, i) => Math.abs(v - mean) > 2 * std ? i : -1).filter(i => i !== -1);
-}
-function movingAverage(arr, window=5) {
-  const res = [];
-  for (let i = 0; i < arr.length; ++i) {
-    const start = Math.max(0, i - Math.floor(window/2));
-    const end = Math.min(arr.length, i + Math.ceil(window/2));
-    const windowArr = arr.slice(start, end);
-    res.push(windowArr.reduce((a, b) => a + b, 0) / windowArr.length);
-  }
-  return res;
-}
-function calcSkewness(arr) {
-  const n = arr.length;
-  if (n < 3) return 0;
-  const mean = arr.reduce((a, b) => a + b, 0) / n;
-  const std = Math.sqrt(arr.map(x => (x - mean) ** 2).reduce((a, b) => a + b, 0) / n);
-  return n * arr.map(x => (x - mean) ** 3).reduce((a, b) => a + b, 0) / ((n - 1) * (n - 2) * std ** 3);
-}
-function calcPercentile(arr, p) {
-  if (!arr.length) return 0;
-  const sorted = [...arr].sort((a, b) => a - b);
-  const idx = Math.floor(p * (sorted.length - 1));
-  return sorted[idx];
-}
 
 export default function Dashboard() {
   const [files, setFiles] = useState([]);
@@ -106,6 +77,7 @@ export default function Dashboard() {
   const [boxplotData, setBoxplotData] = useState({});
 
   // Fetch file list on mount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     setLoading(true);
     fetch(`${API_URL}/files`)
@@ -121,6 +93,7 @@ export default function Dashboard() {
   }, []);
 
   // Fetch and cache all files for selected VoC
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!voc) return;
     const vocFiles = files.filter(f => f.startsWith(voc));
@@ -148,6 +121,7 @@ export default function Dashboard() {
   const getSensors = header => header.filter(h => h && !NON_SENSOR_COLUMNS.map(normalize).includes(normalize(h)));
 
   // Calculate Correlation Matrix when needed
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (selectedTab !== 'Correlation Matrix' || !voc) return;
     setMatrixLoading(true);
@@ -179,6 +153,7 @@ export default function Dashboard() {
   }, [selectedTab, voc, files, fileCache]);
 
   // Calculate Boxplot Data when needed
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (selectedTab !== 'Boxplot' || !voc) return;
     setBoxplotLoading(true);
@@ -198,14 +173,13 @@ export default function Dashboard() {
             y: rows.map(r => Number(r[idx])).filter(v => !isNaN(v)),
             type: 'box',
             name: s,
-            marker: { color: t.box },
           };
         }).filter(Boolean);
-        newData[file] = { sensors, boxData };
+        newData[file] = boxData;
       });
       setBoxplotData(newData);
       setBoxplotLoading(false);
-    }, 100); // Simulate async
+    }, 100);
   }, [selectedTab, voc, files, fileCache]);
 
   // Render
@@ -373,7 +347,7 @@ export default function Dashboard() {
           return (
             <div key={file} style={{ marginBottom: 48 }}>
               <h3 style={{ color: t.accent, marginBottom: 12 }}>{getConfig(file)}</h3>
-              <Plot data={box.boxData} layout={{ autosize: true, responsive: true, paper_bgcolor: t.plotBg, plot_bgcolor: t.plotBg, font: { color: t.plotFont }, boxmode: 'group', yaxis: { title: 'Sensor Value' }, margin: { t: 32, l: 48, r: 24, b: 48 } }} useResizeHandler={true} style={{ width: '100%', height: 320 }} />
+              <Plot data={box} layout={{ autosize: true, responsive: true, paper_bgcolor: t.plotBg, plot_bgcolor: t.plotBg, font: { color: t.plotFont }, boxmode: 'group', yaxis: { title: 'Sensor Value' }, margin: { t: 32, l: 48, r: 24, b: 48 } }} useResizeHandler={true} style={{ width: '100%', height: 320 }} />
             </div>
           );
         })}
