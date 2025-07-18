@@ -123,10 +123,7 @@ export default function Dashboard() {
   const t = themes[theme];
   const [selectedTab, setSelectedTab] = useState('Sensor Charts');
   const tabs = ['Sensor Charts', 'Summary Stats', 'Heatmap', 'Correlation Matrix', 'Boxplot'];
-  const [matrixLoading, setMatrixLoading] = useState(false);
-  const [boxplotLoading, setBoxplotLoading] = useState(false);
-  const [correlationData, setCorrelationData] = useState({});
-  const [boxplotData, setBoxplotData] = useState({});
+
 
   // Fetch file list on mount
   // eslint-disable-next-line react-hooks/exhaustive-deps
