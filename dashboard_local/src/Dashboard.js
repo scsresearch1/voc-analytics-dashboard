@@ -112,7 +112,7 @@ export default function Dashboard() {
       setFileCache(cache);
       setLoading(false);
     }).catch(() => { setError('Failed to load data'); setLoading(false); });
-  }, [voc, files]);
+  }, [voc, files, fileCache]);
 
   // Helper to get config name from file
   const getConfig = file => file.split('_')[1];
