@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Plot from 'react-plotly.js';
 
-const API_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:4000/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://voc-analytics-dashboard.onrender.com';
 const NON_SENSOR_COLUMNS = [
   'SNO', 'Timestamp', 'Phase', 'Heater_Profile', 'Heater_Temparature',
   'Alpha_PID', 'Temp', 'Hum', 'ActiveSensorsArray', 'VOC_Activated',
