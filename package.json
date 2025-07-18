@@ -1,0 +1,16 @@
+{
+  "scripts": {
+    "install:all": "npm install --prefix dashboard_final && npm install --prefix server",
+    "start:all": "concurrently \"npm start --prefix server\" \"npm start --prefix dashboard_final\"",
+    "build:all": "npm run build --prefix dashboard_final"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "csv-parse": "^6.1.0",
+    "express": "^5.1.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
