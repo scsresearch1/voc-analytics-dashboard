@@ -189,16 +189,6 @@ export default function Dashboard() {
     downloadCSV(filename.replace(/\.csv$/, '_filtered.csv'), rows);
   }
 
-  function getColStats(rows, colIdx) {
-    const vals = rows.slice(1).map(r => parseFloat(r[colIdx])).filter(v => !isNaN(v));
-    if (!vals.length) return null;
-    const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
-    const min = Math.min(...vals);
-    const max = Math.max(...vals);
-    const std = Math.sqrt(vals.map(x => (x - mean) ** 2).reduce((a, b) => a + b, 0) / vals.length);
-    return { mean, min, max, std, count: vals.length };
-  }
-
   // Fetch file list on mount
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
