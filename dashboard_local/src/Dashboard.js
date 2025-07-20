@@ -60,16 +60,15 @@ function calcStats(arr) {
   return { mean, median, min, max, std, count: nums.length };
 }
 
-function computeAllStats(data, fileName) {
+function computeAllStats(data) {
   if (!data || !data.length) return {};
   const header = data[0];
   const rows = data.slice(1).filter(r => r.length > 1);
-  // Special handling for DS files
-  const isDS = fileName && fileName.startsWith('DS_');
-  const dsSensorNames = ['MQ136','MQ138_A','MQ138_B','BME688_D','BME688_C','TGS2602','SPEC'];
-  const sensors = isDS
-    ? header.filter(h => dsSensorNames.includes(h))
-    : header.filter(h => h && !NON_SENSOR_COLUMNS.map(normalize).includes(normalize(h)));
+  // Universal sensor list for all files
+  const sensorNames = [
+    'MQ136', 'MQ138_A', 'MQ138_B', 'BME688_D', 'BME688_C', 'TGS2602', 'TGS 2602', 'SPEC'
+  ];
+  const sensors = header.filter(h => sensorNames.includes(h));
   console.log('Header:', header);
   console.log('Detected sensors:', sensors);
 
@@ -224,7 +223,7 @@ export default function Dashboard() {
       return fetch(`${API_URL}/api/file?name=${encodeURIComponent(file)}`)
         .then(res => res.json())
         .then(data => {
-          const allStats = computeAllStats(data.data || data, file);
+          const allStats = computeAllStats(data.data || data);
           return { file, data: allStats };
         });
     })).then(results => {
