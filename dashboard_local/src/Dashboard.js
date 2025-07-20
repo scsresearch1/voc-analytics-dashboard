@@ -316,7 +316,7 @@ export default function Dashboard() {
         {error && <div style={{ color: t.error, fontSize: 18, marginTop: 32 }}>{error}</div>}
         {selectedTab === 'Sensor Charts' && files.filter(f => f.split('_')[0] === voc).map(file => {
           const stats = fileCache[file];
-          if (!stats) return null;
+          if (!stats || !Array.isArray(stats.sensors) || stats.sensors.length === 0) return <div key={file} style={{ color: t.error, marginBottom: 24 }}>No sensor data available for this file.</div>;
           return (
             <div key={file} style={{ marginBottom: 48 }}>
               <h3 style={{ color: t.accent, marginBottom: 12 }}>{getConfig(file)}</h3>
@@ -396,8 +396,7 @@ export default function Dashboard() {
         })}
         {selectedTab === 'Boxplot' && files.filter(f => f.split('_')[0] === voc).map(file => {
           const stats = fileCache[file];
-          if (!stats) return null;
-          // Sensor selection checkboxes
+          if (!stats || !Array.isArray(stats.sensors) || stats.sensors.length === 0) return <div key={file} style={{ color: t.error, marginBottom: 24 }}>No sensor data available for this file.</div>;
           const allSensors = stats.sensors;
           const selectedSensors = allSensors.filter(s => boxplotSensors[s] !== false);
           return (
@@ -410,7 +409,7 @@ export default function Dashboard() {
                   </label>
                 ))}
               </div>
-              <Plot data={stats.boxData.filter(b => selectedSensors.includes(b.name))} layout={{ autosize: true, responsive: true, paper_bgcolor: t.plotBg, plot_bgcolor: t.plotBg, font: { color: t.plotFont }, boxmode: 'group', yaxis: { title: 'Sensor Value' }, margin: { t: 32, l: 48, r: 24, b: 48 } }} useResizeHandler={true} style={{ width: '100%', height: 320 }} />
+              <Plot data={Array.isArray(stats.boxData) ? stats.boxData.filter(b => selectedSensors.includes(b.name)) : []} layout={{ autosize: true, responsive: true, paper_bgcolor: t.plotBg, plot_bgcolor: t.plotBg, font: { color: t.plotFont }, boxmode: 'group', yaxis: { title: 'Sensor Value' }, margin: { t: 32, l: 48, r: 24, b: 48 } }} useResizeHandler={true} style={{ width: '100%', height: 320 }} />
             </div>
           );
         })}
