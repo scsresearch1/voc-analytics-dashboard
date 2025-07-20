@@ -4,12 +4,6 @@ import Plot from 'react-plotly.js';
 import { useNavigate } from 'react-router-dom';
 
 const API_URL = process.env.REACT_APP_API_URL || 'https://voc-analytics-dashboard.onrender.com';
-const NON_SENSOR_COLUMNS = [
-  'SNO', 'Timestamp', 'Phase', 'Heater_Profile', 'Heater_Temparature',
-  'Alpha_PID', 'Temp', 'Hum', 'ActiveSensorsArray', 'VOC_Activated',
-  'Concentration', 'Distance'
-  // Do NOT include: MQ136, MQ138_A, MQ138_B, BME688_D, BME688_C, TGS2602, SPEC
-];
 const normalize = h => h && h.replace(/\s+/g, '').toUpperCase();
 
 // Theme colors
