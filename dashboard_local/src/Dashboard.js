@@ -122,8 +122,27 @@ export default function Dashboard() {
   const [theme, setTheme] = useState('dark');
   const t = themes[theme];
   const [selectedTab, setSelectedTab] = useState('Sensor Charts');
-  const tabs = ['Sensor Charts', 'Summary Stats', 'Heatmap', 'Correlation Matrix', 'Boxplot'];
+  const tabs = ['Sensor Charts', 'Summary Stats', 'Heatmap', 'Correlation Matrix', 'Boxplot', 'CSV Viewer'];
+  const [csvTab, setCsvTab] = useState(0);
+  const [csvSearch, setCsvSearch] = useState('');
 
+  // Helper to download CSV
+  function downloadCSV(filename, rows) {
+    const csv = rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }
+
+  // Helper to copy CSV to clipboard
+  function copyCSV(rows) {
+    const csv = rows.map(row => row.join(',')).join('\n');
+    navigator.clipboard.writeText(csv);
+  }
 
   // Fetch file list on mount
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -317,6 +336,79 @@ export default function Dashboard() {
             </div>
           );
         })}
+        {selectedTab === 'CSV Viewer' && (() => {
+          const vocFiles = files.filter(f => f.startsWith(voc));
+          if (!vocFiles.length) return <div>No files found for this VoC.</div>;
+          const file = vocFiles[csvTab];
+          const stats = fileCache[file];
+          if (!stats) return <div>Loading...</div>;
+          let rows = stats.header && stats.rows ? [stats.header, ...stats.rows] : [];
+          // Filter rows if search is active
+          if (csvSearch) {
+            const searchLower = csvSearch.toLowerCase();
+            rows = [rows[0], ...rows.slice(1).filter(row => row.some(cell => String(cell).toLowerCase().includes(searchLower)))]
+          }
+          return (
+            <div>
+              {/* Sub-tabs for each file */}
+              {vocFiles.length > 1 && (
+                <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+                  {vocFiles.map((f, i) => (
+                    <button
+                      key={f}
+                      onClick={() => setCsvTab(i)}
+                      style={{
+                        padding: '8px 18px',
+                        borderRadius: 8,
+                        border: 'none',
+                        background: i === csvTab ? 'linear-gradient(90deg,#1976d2,#43a047)' : t.card,
+                        color: i === csvTab ? '#fff' : t.text,
+                        fontWeight: 600,
+                        fontSize: 15,
+                        cursor: 'pointer',
+                        boxShadow: i === csvTab ? t.shadow : 'none',
+                        outline: 'none',
+                        transition: 'background 0.2s',
+                      }}
+                    >
+                      {getConfig(f)}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {/* CSV Utilities */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
+                <button onClick={() => downloadCSV(file, [stats.header, ...stats.rows])} style={{ padding: '8px 16px', borderRadius: 8, background: t.accent, color: '#fff', border: 'none', fontWeight: 600, cursor: 'pointer' }}>Download CSV</button>
+                <button onClick={() => copyCSV([stats.header, ...stats.rows])} style={{ padding: '8px 16px', borderRadius: 8, background: t.line, color: '#fff', border: 'none', fontWeight: 600, cursor: 'pointer' }}>Copy to Clipboard</button>
+                <input type="text" placeholder="Search..." value={csvSearch} onChange={e => setCsvSearch(e.target.value)} style={{ padding: '8px', borderRadius: 8, border: '1px solid #ccc', minWidth: 180 }} />
+                <span style={{ color: t.text, fontSize: 15 }}>
+                  Rows: {rows.length - 1}, Columns: {rows[0]?.length || 0}
+                </span>
+              </div>
+              {/* CSV Table */}
+              <div style={{ overflowX: 'auto', maxHeight: 480, borderRadius: 8, boxShadow: t.shadow, background: t.card }}>
+                <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+                  <thead>
+                    <tr>
+                      {rows[0]?.map((cell, i) => (
+                        <th key={i} style={{ padding: 8, background: t.grid, color: t.accent, position: 'sticky', top: 0, zIndex: 1 }}>{cell}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.slice(1).map((row, i) => (
+                      <tr key={i}>
+                        {row.map((cell, j) => (
+                          <td key={j} style={{ padding: 8, borderBottom: '1px solid #eee', color: t.text }}>{cell}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
