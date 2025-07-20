@@ -60,11 +60,18 @@ function calcStats(arr) {
   return { mean, median, min, max, std, count: nums.length };
 }
 
-function computeAllStats(data) {
+function computeAllStats(data, fileName) {
   if (!data || !data.length) return {};
   const header = data[0];
   const rows = data.slice(1).filter(r => r.length > 1);
-  const sensors = header.filter(h => h && !NON_SENSOR_COLUMNS.map(normalize).includes(normalize(h)));
+  // Special handling for DS files
+  const isDS = fileName && fileName.startsWith('DS_');
+  const dsSensorNames = ['MQ136','MQ138_A','MQ138_B','BME688_D','BME688_C','TGS2602','SPEC'];
+  const sensors = isDS
+    ? header.filter(h => dsSensorNames.includes(h))
+    : header.filter(h => h && !NON_SENSOR_COLUMNS.map(normalize).includes(normalize(h)));
+  console.log('Header:', header);
+  console.log('Detected sensors:', sensors);
 
   // Per-sensor stats
   const sensorStats = {};
@@ -217,7 +224,7 @@ export default function Dashboard() {
       return fetch(`${API_URL}/api/file?name=${encodeURIComponent(file)}`)
         .then(res => res.json())
         .then(data => {
-          const allStats = computeAllStats(data.data || data);
+          const allStats = computeAllStats(data.data || data, file);
           return { file, data: allStats };
         });
     })).then(results => {
@@ -337,7 +344,7 @@ export default function Dashboard() {
         })}
         {selectedTab === 'Summary Stats' && files.filter(f => f.split('_')[0] === voc).map(file => {
           const stats = fileCache[file];
-          if (!stats) return null;
+          if (!stats || !Array.isArray(stats.sensors) || stats.sensors.length === 0) return <div key={file} style={{ color: t.error, marginBottom: 24 }}>No sensor data available for this file.</div>;
           return (
             <div key={file} style={{ marginBottom: 48 }}>
               <h3 style={{ color: t.accent, marginBottom: 12 }}>{getConfig(file)}</h3>
@@ -355,7 +362,7 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {stats.sensors.map((sensor, idx) => {
+                    {Array.isArray(stats.sensors) && stats.sensors.map((sensor, idx) => {
                       const s = stats.sensorStats[sensor];
                       return (
                         <tr key={sensor} style={{ background: idx % 2 === 0 ? t.card : t.grid }}>
@@ -377,7 +384,9 @@ export default function Dashboard() {
         })}
         {selectedTab === 'Heatmap' && files.filter(f => f.split('_')[0] === voc).map(file => {
           const stats = fileCache[file];
-          if (!stats) return null;
+          if (!stats || !stats.heatmap || !Array.isArray(stats.heatmap.sensors) || !Array.isArray(stats.heatmap.z)) {
+            return <div key={file} style={{ color: t.error, marginBottom: 24 }}>No heatmap data available for this file.</div>;
+          }
           return (
             <div key={file} style={{ marginBottom: 48 }}>
               <h3 style={{ color: t.accent, marginBottom: 12 }}>{getConfig(file)}</h3>
@@ -387,7 +396,9 @@ export default function Dashboard() {
         })}
         {selectedTab === 'Correlation Matrix' && files.filter(f => f.split('_')[0] === voc).map(file => {
           const stats = fileCache[file];
-          if (!stats) return null;
+          if (!stats || !stats.correlation || !Array.isArray(stats.correlation.sensors) || !Array.isArray(stats.correlation.matrix)) {
+            return <div key={file} style={{ color: t.error, marginBottom: 24 }}>No correlation data available for this file.</div>;
+          }
           return (
             <div key={file} style={{ marginBottom: 48 }}>
               <h3 style={{ color: t.accent, marginBottom: 12 }}>{getConfig(file)}</h3>
@@ -421,6 +432,7 @@ export default function Dashboard() {
           const stats = fileCache[file];
           if (!stats) return <div>Loading...</div>;
           let rows = stats.header && stats.rows ? [stats.header, ...stats.rows] : [];
+          if (!Array.isArray(rows) || rows.length === 0) return <div>No data available for this file.</div>;
           // Filter rows if search is active
           if (csvSearch) {
             const searchLower = csvSearch.toLowerCase();
