@@ -1,6 +1,7 @@
 //import React, { useState, useEffect } from 'react';
 import React, { useState, useEffect } from 'react';
 import Plot from 'react-plotly.js';
+import { useNavigate } from 'react-router-dom';
 
 const API_URL = process.env.REACT_APP_API_URL || 'https://voc-analytics-dashboard.onrender.com';
 const NON_SENSOR_COLUMNS = [
@@ -123,8 +124,7 @@ export default function Dashboard() {
   const t = themes[theme];
   const [selectedTab, setSelectedTab] = useState('Sensor Charts');
   const tabs = ['Sensor Charts', 'Summary Stats', 'Heatmap', 'Correlation Matrix', 'Boxplot', 'CSV Viewer'];
-  const [csvTab, setCsvTab] = useState(0);
-  const [csvSearch, setCsvSearch] = useState('');
+  const navigate = useNavigate();
 
   // Helper to download CSV
   function downloadCSV(filename, rows) {
@@ -142,6 +142,54 @@ export default function Dashboard() {
   function copyCSV(rows) {
     const csv = rows.map(row => row.join(',')).join('\n');
     navigator.clipboard.writeText(csv);
+  }
+
+  // CSV Viewer enhancements
+  const [csvTab, setCsvTab] = useState(0);
+  const [csvSearch, setCsvSearch] = useState('');
+  const [csvSort, setCsvSort] = useState({ col: null, asc: true });
+  const [csvVisibleCols, setCsvVisibleCols] = useState({});
+
+  function handleLogout() {
+    // Clear login state (if any)
+    localStorage.clear();
+    sessionStorage.clear();
+    navigate('/login');
+  }
+
+  function toggleCol(col) {
+    setCsvVisibleCols(prev => ({ ...prev, [col]: !prev[col] }));
+  }
+
+  function sortRows(rows, colIdx, asc) {
+    if (colIdx == null) return rows;
+    const header = rows[0];
+    const body = rows.slice(1).slice();
+    body.sort((a, b) => {
+      const aVal = a[colIdx];
+      const bVal = b[colIdx];
+      const aNum = parseFloat(aVal);
+      const bNum = parseFloat(bVal);
+      if (!isNaN(aNum) && !isNaN(bNum)) {
+        return asc ? aNum - bNum : bNum - aNum;
+      }
+      return asc ? String(aVal).localeCompare(String(bVal)) : String(bVal).localeCompare(String(aVal));
+    });
+    return [header, ...body];
+  }
+
+  function exportFilteredCSV(filename, rows) {
+    downloadCSV(filename.replace(/\.csv$/, '_filtered.csv'), rows);
+  }
+
+  function getColStats(rows, colIdx) {
+    const vals = rows.slice(1).map(r => parseFloat(r[colIdx])).filter(v => !isNaN(v));
+    if (!vals.length) return null;
+    const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+    const min = Math.min(...vals);
+    const max = Math.max(...vals);
+    const std = Math.sqrt(vals.map(x => (x - mean) ** 2).reduce((a, b) => a + b, 0) / vals.length);
+    return { mean, min, max, std, count: vals.length };
   }
 
   // Fetch file list on mount
@@ -207,22 +255,40 @@ export default function Dashboard() {
         {/* Top Bar with VoC and Theme Toggle */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
           <div style={{ fontSize: 20, fontWeight: 600, color: t.text }}>{voc}</div>
-          <button
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            style={{
-              padding: '8px 12px',
-              borderRadius: 8,
-              background: 'linear-gradient(90deg,#1976d2,#43a047)',
-              color: '#fff',
-              fontWeight: 600,
-              fontSize: 14,
-              border: 'none',
-              cursor: 'pointer',
-              marginLeft: 16
-            }}
-          >
-            Toggle {theme === 'dark' ? 'Light' : 'Dark'} Mode
-          </button>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              style={{
+                padding: '8px 12px',
+                borderRadius: 8,
+                background: 'linear-gradient(90deg,#1976d2,#43a047)',
+                color: '#fff',
+                fontWeight: 600,
+                fontSize: 14,
+                border: 'none',
+                cursor: 'pointer',
+                marginLeft: 16
+              }}
+            >
+              Toggle {theme === 'dark' ? 'Light' : 'Dark'} Mode
+            </button>
+            <button
+              onClick={handleLogout}
+              style={{
+                padding: '8px 12px',
+                borderRadius: 8,
+                background: t.error,
+                color: '#fff',
+                fontWeight: 600,
+                fontSize: 14,
+                border: 'none',
+                cursor: 'pointer',
+                marginLeft: 0
+              }}
+            >
+              Logout
+            </button>
+          </div>
         </div>
         {/* Tab Bar */}
         <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
@@ -348,6 +414,12 @@ export default function Dashboard() {
             const searchLower = csvSearch.toLowerCase();
             rows = [rows[0], ...rows.slice(1).filter(row => row.some(cell => String(cell).toLowerCase().includes(searchLower)))]
           }
+          // Column visibility
+          const visibleCols = rows[0]?.map((col, i) => csvVisibleCols[col] !== false ? i : null).filter(i => i != null) || [];
+          // Sorting
+          if (csvSort.col != null) {
+            rows = sortRows(rows, csvSort.col, csvSort.asc);
+          }
           return (
             <div>
               {/* Sub-tabs for each file */}
@@ -377,28 +449,73 @@ export default function Dashboard() {
                 </div>
               )}
               {/* CSV Utilities */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16, flexWrap: 'wrap' }}>
                 <button onClick={() => downloadCSV(file, [stats.header, ...stats.rows])} style={{ padding: '8px 16px', borderRadius: 8, background: t.accent, color: '#fff', border: 'none', fontWeight: 600, cursor: 'pointer' }}>Download CSV</button>
                 <button onClick={() => copyCSV([stats.header, ...stats.rows])} style={{ padding: '8px 16px', borderRadius: 8, background: t.line, color: '#fff', border: 'none', fontWeight: 600, cursor: 'pointer' }}>Copy to Clipboard</button>
+                <button onClick={() => exportFilteredCSV(file, rows)} style={{ padding: '8px 16px', borderRadius: 8, background: t.box, color: '#fff', border: 'none', fontWeight: 600, cursor: 'pointer' }}>Export Filtered</button>
                 <input type="text" placeholder="Search..." value={csvSearch} onChange={e => setCsvSearch(e.target.value)} style={{ padding: '8px', borderRadius: 8, border: '1px solid #ccc', minWidth: 180 }} />
                 <span style={{ color: t.text, fontSize: 15 }}>
                   Rows: {rows.length - 1}, Columns: {rows[0]?.length || 0}
                 </span>
+                {/* Column visibility toggles */}
+                <span style={{ color: t.text, fontSize: 15 }}>Columns:</span>
+                {rows[0]?.map((col, i) => (
+                  <label key={col} style={{ marginRight: 8, color: t.text, fontSize: 14 }}>
+                    <input type="checkbox" checked={csvVisibleCols[col] !== false} onChange={() => toggleCol(col)} /> {col}
+                  </label>
+                ))}
+              </div>
+              {/* Summary stats for numeric columns */}
+              <div style={{ marginBottom: 12 }}>
+                <table style={{ background: t.grid, borderRadius: 8, color: t.text, fontSize: 14, marginBottom: 8 }}>
+                  <thead>
+                    <tr>
+                      <th style={{ padding: 6 }}>Column</th>
+                      <th style={{ padding: 6 }}>Mean</th>
+                      <th style={{ padding: 6 }}>Min</th>
+                      <th style={{ padding: 6 }}>Max</th>
+                      <th style={{ padding: 6 }}>Std</th>
+                      <th style={{ padding: 6 }}>Count</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows[0]?.map((col, i) => {
+                      const stats = getColStats(rows, i);
+                      if (!stats) return null;
+                      return (
+                        <tr key={col}>
+                          <td style={{ padding: 6 }}>{col}</td>
+                          <td style={{ padding: 6 }}>{stats.mean.toFixed(3)}</td>
+                          <td style={{ padding: 6 }}>{stats.min}</td>
+                          <td style={{ padding: 6 }}>{stats.max}</td>
+                          <td style={{ padding: 6 }}>{stats.std.toFixed(3)}</td>
+                          <td style={{ padding: 6 }}>{stats.count}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
               {/* CSV Table */}
               <div style={{ overflowX: 'auto', maxHeight: 480, borderRadius: 8, boxShadow: t.shadow, background: t.card }}>
                 <table style={{ borderCollapse: 'collapse', width: '100%' }}>
                   <thead>
                     <tr>
-                      {rows[0]?.map((cell, i) => (
-                        <th key={i} style={{ padding: 8, background: t.grid, color: t.accent, position: 'sticky', top: 0, zIndex: 1 }}>{cell}</th>
+                      {rows[0]?.map((cell, i) => csvVisibleCols[cell] !== false && (
+                        <th
+                          key={i}
+                          style={{ padding: 8, background: t.grid, color: t.accent, position: 'sticky', top: 0, zIndex: 1, cursor: 'pointer' }}
+                          onClick={() => setCsvSort(s => ({ col: i, asc: s.col === i ? !s.asc : true }))}
+                        >
+                          {cell} {csvSort.col === i ? (csvSort.asc ? '▲' : '▼') : ''}
+                        </th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {rows.slice(1).map((row, i) => (
                       <tr key={i}>
-                        {row.map((cell, j) => (
+                        {row.map((cell, j) => csvVisibleCols[rows[0][j]] !== false && (
                           <td key={j} style={{ padding: 8, borderBottom: '1px solid #eee', color: t.text }}>{cell}</td>
                         ))}
                       </tr>
