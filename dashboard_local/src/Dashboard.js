@@ -414,8 +414,6 @@ export default function Dashboard() {
             const searchLower = csvSearch.toLowerCase();
             rows = [rows[0], ...rows.slice(1).filter(row => row.some(cell => String(cell).toLowerCase().includes(searchLower)))]
           }
-          // Column visibility
-          const visibleCols = rows[0]?.map((col, i) => csvVisibleCols[col] !== false ? i : null).filter(i => i != null) || [];
           // Sorting
           if (csvSort.col != null) {
             rows = sortRows(rows, csvSort.col, csvSort.asc);
