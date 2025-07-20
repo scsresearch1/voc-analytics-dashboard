@@ -208,7 +208,7 @@ export default function Dashboard() {
   // Fetch and cache all files for selected VoC
   useEffect(() => {
     if (!voc) return;
-    const vocFiles = files.filter(f => f.startsWith(voc));
+    const vocFiles = files.filter(f => f.split('_')[0] === voc);
     if (vocFiles.length === 0) return;
     setLoading(true);
     Promise.all(vocFiles.map(file => {
@@ -314,7 +314,7 @@ export default function Dashboard() {
         {/* Main Content by Tab */}
         {loading && <div className="spinner"></div>}
         {error && <div style={{ color: t.error, fontSize: 18, marginTop: 32 }}>{error}</div>}
-        {selectedTab === 'Sensor Charts' && files.filter(f => f.startsWith(voc)).map(file => {
+        {selectedTab === 'Sensor Charts' && files.filter(f => f.split('_')[0] === voc).map(file => {
           const stats = fileCache[file];
           if (!stats) return null;
           return (
@@ -334,7 +334,7 @@ export default function Dashboard() {
             </div>
           );
         })}
-        {selectedTab === 'Summary Stats' && files.filter(f => f.startsWith(voc)).map(file => {
+        {selectedTab === 'Summary Stats' && files.filter(f => f.split('_')[0] === voc).map(file => {
           const stats = fileCache[file];
           if (!stats) return null;
           return (
@@ -374,7 +374,7 @@ export default function Dashboard() {
             </div>
           );
         })}
-        {selectedTab === 'Heatmap' && files.filter(f => f.startsWith(voc)).map(file => {
+        {selectedTab === 'Heatmap' && files.filter(f => f.split('_')[0] === voc).map(file => {
           const stats = fileCache[file];
           if (!stats) return null;
           return (
@@ -384,7 +384,7 @@ export default function Dashboard() {
             </div>
           );
         })}
-        {selectedTab === 'Correlation Matrix' && files.filter(f => f.startsWith(voc)).map(file => {
+        {selectedTab === 'Correlation Matrix' && files.filter(f => f.split('_')[0] === voc).map(file => {
           const stats = fileCache[file];
           if (!stats) return null;
           return (
@@ -394,7 +394,7 @@ export default function Dashboard() {
             </div>
           );
         })}
-        {selectedTab === 'Boxplot' && files.filter(f => f.startsWith(voc)).map(file => {
+        {selectedTab === 'Boxplot' && files.filter(f => f.split('_')[0] === voc).map(file => {
           const stats = fileCache[file];
           if (!stats) return null;
           // Sensor selection checkboxes
@@ -415,7 +415,7 @@ export default function Dashboard() {
           );
         })}
         {selectedTab === 'CSV Viewer' && (() => {
-          const vocFiles = files.filter(f => f.startsWith(voc));
+          const vocFiles = files.filter(f => f.split('_')[0] === voc);
           if (!vocFiles.length) return <div>No files found for this VoC.</div>;
           const file = vocFiles[csvTab];
           const stats = fileCache[file];
