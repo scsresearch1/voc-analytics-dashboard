@@ -124,7 +124,7 @@ export default function Dashboard() {
   const [theme, setTheme] = useState('dark');
   const t = themes[theme];
   const [selectedTab, setSelectedTab] = useState('Sensor Charts');
-  const tabs = ['Sensor Charts', 'Summary Stats', 'Heatmap', 'Correlation Matrix', 'Boxplot', 'CSV Viewer'];
+  const tabs = ['Sensor Charts', 'Summary Stats', 'Heatmap', 'Correlation Matrix', 'Boxplot', 'CSV Data Viewer'];
   const navigate = useNavigate();
 
   // Helper to download CSV
@@ -254,22 +254,22 @@ export default function Dashboard() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
           <div style={{ fontSize: 20, fontWeight: 600, color: t.text }}>{voc}</div>
           <div style={{ display: 'flex', gap: 12 }}>
-            <button
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              style={{
-                padding: '8px 12px',
-                borderRadius: 8,
-                background: 'linear-gradient(90deg,#1976d2,#43a047)',
-                color: '#fff',
-                fontWeight: 600,
-                fontSize: 14,
-                border: 'none',
-                cursor: 'pointer',
-                marginLeft: 16
-              }}
-            >
-              Toggle {theme === 'dark' ? 'Light' : 'Dark'} Mode
-            </button>
+          <button
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            style={{
+              padding: '8px 12px',
+              borderRadius: 8,
+              background: 'linear-gradient(90deg,#1976d2,#43a047)',
+              color: '#fff',
+              fontWeight: 600,
+              fontSize: 14,
+              border: 'none',
+              cursor: 'pointer',
+              marginLeft: 16
+            }}
+          >
+            Toggle {theme === 'dark' ? 'Light' : 'Dark'} Mode
+          </button>
             <button
               onClick={handleLogout}
               style={{
@@ -323,8 +323,8 @@ export default function Dashboard() {
               <h3 style={{ color: t.accent, marginBottom: 12 }}>{getConfig(file)}</h3>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 32 }}>
                 {stats.sensors.map(sensor => (
-                  <div key={sensor} style={{ background: t.grid, borderRadius: 16, padding: 24, color: t.text, minWidth: 320, minHeight: 320, flex: '1 1 320px', display: 'flex', flexDirection: 'column' }}>
-                    <b style={{ marginBottom: 8 }}>{sensor}</b>
+                    <div key={sensor} style={{ background: t.grid, borderRadius: 16, padding: 24, color: t.text, minWidth: 320, minHeight: 320, flex: '1 1 320px', display: 'flex', flexDirection: 'column' }}>
+                      <b style={{ marginBottom: 8 }}>{sensor}</b>
                     <div style={{ fontSize: 14, color: t.accent, marginBottom: 8 }}>
                       Mean: {stats.sensorStats[sensor].mean !== '-' ? stats.sensorStats[sensor].mean.toFixed(3) : '-'}, Std: {stats.sensorStats[sensor].std !== '-' ? stats.sensorStats[sensor].std.toFixed(3) : '-'}
                     </div>
@@ -352,12 +352,12 @@ export default function Dashboard() {
                       <th style={{ padding: 12, color: t.accent, fontWeight: 700, fontSize: 16, textAlign: 'right', position: 'sticky', top: 0 }}>Max</th>
                       <th style={{ padding: 12, color: t.accent, fontWeight: 700, fontSize: 16, textAlign: 'right', position: 'sticky', top: 0 }}>Std</th>
                       <th style={{ padding: 12, color: t.accent, fontWeight: 700, fontSize: 16, textAlign: 'right', position: 'sticky', top: 0 }}>Count</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                  </tr>
+                </thead>
+                <tbody>
                     {Array.isArray(stats.sensors) && stats.sensors.map((sensor, idx) => {
                       const s = stats.sensorStats[sensor];
-                      return (
+                    return (
                         <tr key={sensor} style={{ background: idx % 2 === 0 ? t.card : t.grid }}>
                           <td style={{ padding: 10, fontWeight: 600, color: t.text }}>{sensor}</td>
                           <td style={{ padding: 10, textAlign: 'right', color: t.accent }}>{s.mean !== '-' ? s.mean.toFixed(3) : '-'}</td>
@@ -366,11 +366,11 @@ export default function Dashboard() {
                           <td style={{ padding: 10, textAlign: 'right', color: t.text }}>{s.max !== '-' ? s.max.toFixed(3) : '-'}</td>
                           <td style={{ padding: 10, textAlign: 'right', color: t.text }}>{s.std !== '-' ? s.std.toFixed(3) : '-'}</td>
                           <td style={{ padding: 10, textAlign: 'right', color: t.text }}>{s.count}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
               </div>
             </div>
           );
@@ -418,7 +418,7 @@ export default function Dashboard() {
             </div>
           );
         })}
-        {selectedTab === 'CSV Viewer' && (() => {
+        {selectedTab === 'CSV Data Viewer' && (() => {
           const vocFiles = files.filter(f => f.split('_')[0] === voc);
           if (!vocFiles.length) return <div>No files found for this VoC.</div>;
           const file = vocFiles[csvTab];
