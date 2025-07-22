@@ -114,6 +114,20 @@ function computeAllStats(data) {
 
 // --- Additional Analytics ---
 
+// Helper to group rows by Phase, Heater_Profile, Heater_Temparature
+function groupRowsByKey(rows, header) {
+  const phaseIdx = header.indexOf('Phase');
+  const profileIdx = header.indexOf('Heater_Profile');
+  const tempIdx = header.indexOf('Heater_Temparature');
+  const groups = {};
+  rows.forEach(row => {
+    const key = `${row[phaseIdx]}|${row[profileIdx]}|${row[tempIdx]}`;
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(row);
+  });
+  return groups;
+}
+
 export default function Dashboard() {
   const [files, setFiles] = useState([]);
   const [vocOptions, setVocOptions] = useState([]);
@@ -338,40 +352,59 @@ export default function Dashboard() {
         {selectedTab === 'Summary Stats' && files.filter(f => f.split('_')[0] === voc).map(file => {
           const stats = fileCache[file];
           if (!stats || !Array.isArray(stats.sensors) || stats.sensors.length === 0) return <div key={file} style={{ color: t.error, marginBottom: 24 }}>No sensor data available for this file.</div>;
+          // Group rows by Phase, Heater_Profile, Heater_Temparature
+          const groups = groupRowsByKey(stats.rows, stats.header);
           return (
             <div key={file} style={{ marginBottom: 48 }}>
               <h3 style={{ color: t.accent, marginBottom: 12 }}>{getConfig(file)}</h3>
-              <div style={{ overflowX: 'auto', borderRadius: 12, boxShadow: t.shadow, background: t.card }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', borderRadius: 12, overflow: 'hidden' }}>
-                  <thead style={{ position: 'sticky', top: 0, zIndex: 2 }}>
-                    <tr style={{ background: t.grid }}>
-                      <th style={{ padding: 12, color: t.accent, fontWeight: 700, fontSize: 16, textAlign: 'left', position: 'sticky', top: 0 }}>Sensor</th>
-                      <th style={{ padding: 12, color: t.accent, fontWeight: 700, fontSize: 16, textAlign: 'right', position: 'sticky', top: 0 }}>Mean</th>
-                      <th style={{ padding: 12, color: t.accent, fontWeight: 700, fontSize: 16, textAlign: 'right', position: 'sticky', top: 0 }}>Median</th>
-                      <th style={{ padding: 12, color: t.accent, fontWeight: 700, fontSize: 16, textAlign: 'right', position: 'sticky', top: 0 }}>Min</th>
-                      <th style={{ padding: 12, color: t.accent, fontWeight: 700, fontSize: 16, textAlign: 'right', position: 'sticky', top: 0 }}>Max</th>
-                      <th style={{ padding: 12, color: t.accent, fontWeight: 700, fontSize: 16, textAlign: 'right', position: 'sticky', top: 0 }}>Std</th>
-                      <th style={{ padding: 12, color: t.accent, fontWeight: 700, fontSize: 16, textAlign: 'right', position: 'sticky', top: 0 }}>Count</th>
-                  </tr>
-                </thead>
-                <tbody>
-                    {Array.isArray(stats.sensors) && stats.sensors.map((sensor, idx) => {
-                      const s = stats.sensorStats[sensor];
-                    return (
-                        <tr key={sensor} style={{ background: idx % 2 === 0 ? t.card : t.grid }}>
-                          <td style={{ padding: 10, fontWeight: 600, color: t.text }}>{sensor}</td>
-                          <td style={{ padding: 10, textAlign: 'right', color: t.accent }}>{s.mean !== '-' ? s.mean.toFixed(3) : '-'}</td>
-                          <td style={{ padding: 10, textAlign: 'right', color: t.text }}>{s.median !== '-' ? s.median.toFixed(3) : '-'}</td>
-                          <td style={{ padding: 10, textAlign: 'right', color: t.text }}>{s.min !== '-' ? s.min.toFixed(3) : '-'}</td>
-                          <td style={{ padding: 10, textAlign: 'right', color: t.text }}>{s.max !== '-' ? s.max.toFixed(3) : '-'}</td>
-                          <td style={{ padding: 10, textAlign: 'right', color: t.text }}>{s.std !== '-' ? s.std.toFixed(3) : '-'}</td>
-                          <td style={{ padding: 10, textAlign: 'right', color: t.text }}>{s.count}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-              </div>
+              {Object.entries(groups).map(([groupKey, groupRows], groupIdx) => {
+                const [phase, profile, temp] = groupKey.split('|');
+                // For each sensor, calculate stats for this group
+                const groupSensorStats = {};
+                stats.sensors.forEach(sensor => {
+                  const idx = stats.header.indexOf(sensor);
+                  const vals = groupRows.map(r => Number(r[idx])).filter(v => !isNaN(v));
+                  groupSensorStats[sensor] = calcStats(vals);
+                });
+                return (
+                  <div key={groupKey} style={{ marginBottom: 32, border: '1px solid #eee', borderRadius: 10, background: t.card, boxShadow: t.shadow, padding: 16 }}>
+                    <div style={{ fontWeight: 700, color: t.accent, marginBottom: 8, fontSize: 17 }}>
+                      Phase: {phase}, Heater_Profile: {profile}, Heater_Temparature: {temp}
+                    </div>
+                    <div style={{ overflowX: 'auto', borderRadius: 8 }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', borderRadius: 8, overflow: 'hidden' }}>
+                        <thead style={{ position: 'sticky', top: 0, zIndex: 2 }}>
+                          <tr style={{ background: t.grid }}>
+                            <th style={{ padding: 10, color: t.accent, fontWeight: 700, fontSize: 15, textAlign: 'left', position: 'sticky', top: 0 }}>Sensor</th>
+                            <th style={{ padding: 10, color: t.accent, fontWeight: 700, fontSize: 15, textAlign: 'right', position: 'sticky', top: 0 }}>Mean</th>
+                            <th style={{ padding: 10, color: t.accent, fontWeight: 700, fontSize: 15, textAlign: 'right', position: 'sticky', top: 0 }}>Median</th>
+                            <th style={{ padding: 10, color: t.accent, fontWeight: 700, fontSize: 15, textAlign: 'right', position: 'sticky', top: 0 }}>Min</th>
+                            <th style={{ padding: 10, color: t.accent, fontWeight: 700, fontSize: 15, textAlign: 'right', position: 'sticky', top: 0 }}>Max</th>
+                            <th style={{ padding: 10, color: t.accent, fontWeight: 700, fontSize: 15, textAlign: 'right', position: 'sticky', top: 0 }}>Std</th>
+                            <th style={{ padding: 10, color: t.accent, fontWeight: 700, fontSize: 15, textAlign: 'right', position: 'sticky', top: 0 }}>Count</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {stats.sensors.map((sensor, idx) => {
+                            const s = groupSensorStats[sensor];
+                            return (
+                              <tr key={sensor} style={{ background: idx % 2 === 0 ? t.card : t.grid }}>
+                                <td style={{ padding: 8, fontWeight: 600, color: t.text }}>{sensor}</td>
+                                <td style={{ padding: 8, textAlign: 'right', color: t.accent }}>{s.mean !== '-' ? s.mean.toFixed(3) : '-'}</td>
+                                <td style={{ padding: 8, textAlign: 'right', color: t.text }}>{s.median !== '-' ? s.median.toFixed(3) : '-'}</td>
+                                <td style={{ padding: 8, textAlign: 'right', color: t.text }}>{s.min !== '-' ? s.min.toFixed(3) : '-'}</td>
+                                <td style={{ padding: 8, textAlign: 'right', color: t.text }}>{s.max !== '-' ? s.max.toFixed(3) : '-'}</td>
+                                <td style={{ padding: 8, textAlign: 'right', color: t.text }}>{s.std !== '-' ? s.std.toFixed(3) : '-'}</td>
+                                <td style={{ padding: 8, textAlign: 'right', color: t.text }}>{s.count}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           );
         })}
