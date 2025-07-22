@@ -355,8 +355,8 @@ export default function Dashboard() {
           // Group rows by Phase, Heater_Profile, Heater_Temparature
           const groups = groupRowsByKey(stats.rows, stats.header);
           return (
-            <div key={file} style={{ marginBottom: 48 }}>
-              <h3 style={{ color: t.accent, marginBottom: 12 }}>{getConfig(file)}</h3>
+            <div key={file} style={{ marginBottom: 32 }}>
+              <h3 style={{ color: t.accent, marginBottom: 8, fontSize: 18 }}>{getConfig(file)}</h3>
               {Object.entries(groups).map(([groupKey, groupRows], groupIdx) => {
                 const [phase, profile, temp] = groupKey.split('|');
                 // For each sensor, calculate stats for this group
@@ -367,21 +367,21 @@ export default function Dashboard() {
                   groupSensorStats[sensor] = calcStats(vals);
                 });
                 return (
-                  <div key={groupKey} style={{ marginBottom: 32, border: '1px solid #eee', borderRadius: 10, background: t.card, boxShadow: t.shadow, padding: 16 }}>
-                    <div style={{ fontWeight: 700, color: t.accent, marginBottom: 8, fontSize: 17 }}>
+                  <div key={groupKey} style={{ marginBottom: 16, border: '1px solid #eee', borderRadius: 7, background: t.card, boxShadow: t.shadow, padding: 8 }}>
+                    <div style={{ fontWeight: 600, color: t.accent, marginBottom: 4, fontSize: 14 }}>
                       Phase: {phase}, Heater_Profile: {profile}, Heater_Temparature: {temp}
                     </div>
-                    <div style={{ overflowX: 'auto', borderRadius: 8 }}>
-                      <table style={{ width: '100%', borderCollapse: 'collapse', borderRadius: 8, overflow: 'hidden' }}>
+                    <div style={{ overflowX: 'auto', borderRadius: 5 }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', borderRadius: 5, fontSize: 13 }}>
                         <thead style={{ position: 'sticky', top: 0, zIndex: 2 }}>
                           <tr style={{ background: t.grid }}>
-                            <th style={{ padding: 10, color: t.accent, fontWeight: 700, fontSize: 15, textAlign: 'left', position: 'sticky', top: 0 }}>Sensor</th>
-                            <th style={{ padding: 10, color: t.accent, fontWeight: 700, fontSize: 15, textAlign: 'right', position: 'sticky', top: 0 }}>Mean</th>
-                            <th style={{ padding: 10, color: t.accent, fontWeight: 700, fontSize: 15, textAlign: 'right', position: 'sticky', top: 0 }}>Median</th>
-                            <th style={{ padding: 10, color: t.accent, fontWeight: 700, fontSize: 15, textAlign: 'right', position: 'sticky', top: 0 }}>Min</th>
-                            <th style={{ padding: 10, color: t.accent, fontWeight: 700, fontSize: 15, textAlign: 'right', position: 'sticky', top: 0 }}>Max</th>
-                            <th style={{ padding: 10, color: t.accent, fontWeight: 700, fontSize: 15, textAlign: 'right', position: 'sticky', top: 0 }}>Std</th>
-                            <th style={{ padding: 10, color: t.accent, fontWeight: 700, fontSize: 15, textAlign: 'right', position: 'sticky', top: 0 }}>Count</th>
+                            <th style={{ padding: 6, color: t.accent, fontWeight: 700, fontSize: 13, textAlign: 'left', position: 'sticky', top: 0 }}>Sensor</th>
+                            <th style={{ padding: 6, color: t.accent, fontWeight: 700, fontSize: 13, textAlign: 'right', position: 'sticky', top: 0 }}>Mean</th>
+                            <th style={{ padding: 6, color: t.accent, fontWeight: 700, fontSize: 13, textAlign: 'right', position: 'sticky', top: 0 }}>Median</th>
+                            <th style={{ padding: 6, color: t.accent, fontWeight: 700, fontSize: 13, textAlign: 'right', position: 'sticky', top: 0 }}>Min</th>
+                            <th style={{ padding: 6, color: t.accent, fontWeight: 700, fontSize: 13, textAlign: 'right', position: 'sticky', top: 0 }}>Max</th>
+                            <th style={{ padding: 6, color: t.accent, fontWeight: 700, fontSize: 13, textAlign: 'right', position: 'sticky', top: 0 }}>Std</th>
+                            <th style={{ padding: 6, color: t.accent, fontWeight: 700, fontSize: 13, textAlign: 'right', position: 'sticky', top: 0 }}>Count</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -389,13 +389,13 @@ export default function Dashboard() {
                             const s = groupSensorStats[sensor];
                             return (
                               <tr key={sensor} style={{ background: idx % 2 === 0 ? t.card : t.grid }}>
-                                <td style={{ padding: 8, fontWeight: 600, color: t.text }}>{sensor}</td>
-                                <td style={{ padding: 8, textAlign: 'right', color: t.accent }}>{s.mean !== '-' ? s.mean.toFixed(3) : '-'}</td>
-                                <td style={{ padding: 8, textAlign: 'right', color: t.text }}>{s.median !== '-' ? s.median.toFixed(3) : '-'}</td>
-                                <td style={{ padding: 8, textAlign: 'right', color: t.text }}>{s.min !== '-' ? s.min.toFixed(3) : '-'}</td>
-                                <td style={{ padding: 8, textAlign: 'right', color: t.text }}>{s.max !== '-' ? s.max.toFixed(3) : '-'}</td>
-                                <td style={{ padding: 8, textAlign: 'right', color: t.text }}>{s.std !== '-' ? s.std.toFixed(3) : '-'}</td>
-                                <td style={{ padding: 8, textAlign: 'right', color: t.text }}>{s.count}</td>
+                                <td style={{ padding: 5, fontWeight: 500, color: t.text }}>{sensor}</td>
+                                <td style={{ padding: 5, textAlign: 'right', color: t.accent }}>{s.mean !== '-' ? s.mean.toFixed(3) : '-'}</td>
+                                <td style={{ padding: 5, textAlign: 'right', color: t.text }}>{s.median !== '-' ? s.median.toFixed(3) : '-'}</td>
+                                <td style={{ padding: 5, textAlign: 'right', color: t.text }}>{s.min !== '-' ? s.min.toFixed(3) : '-'}</td>
+                                <td style={{ padding: 5, textAlign: 'right', color: t.text }}>{s.max !== '-' ? s.max.toFixed(3) : '-'}</td>
+                                <td style={{ padding: 5, textAlign: 'right', color: t.text }}>{s.std !== '-' ? s.std.toFixed(3) : '-'}</td>
+                                <td style={{ padding: 5, textAlign: 'right', color: t.text }}>{s.count}</td>
                               </tr>
                             );
                           })}
