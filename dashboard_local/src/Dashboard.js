@@ -361,41 +361,46 @@ export default function Dashboard() {
                 const [phase, profile, temp] = groupKey.split('|');
                 // For each sensor, calculate stats for this group
                 const groupSensorStats = {};
+                let hasData = false;
                 stats.sensors.forEach(sensor => {
                   const idx = stats.header.indexOf(sensor);
                   const vals = groupRows.map(r => Number(r[idx])).filter(v => !isNaN(v));
                   groupSensorStats[sensor] = calcStats(vals);
+                  if (vals.length > 0) hasData = true;
                 });
+                if (!hasData) return null;
                 return (
-                  <div key={groupKey} style={{ marginBottom: 16, border: '1px solid #eee', borderRadius: 7, background: t.card, boxShadow: t.shadow, padding: 8 }}>
-                    <div style={{ fontWeight: 600, color: t.accent, marginBottom: 4, fontSize: 14 }}>
-                      Phase: {phase}, Heater_Profile: {profile}, Heater_Temparature: {temp}
+                  <div key={groupKey} style={{ marginBottom: 12, border: '1px solid #e0e0e0', borderRadius: 7, background: t.card, boxShadow: t.shadow, padding: 6 }}>
+                    <div style={{ fontWeight: 600, color: t.accent, marginBottom: 2, fontSize: 14, background: t.grid, position: 'sticky', left: 0, zIndex: 2, padding: 4, borderRadius: 5 }}>
+                      Phase: {phase}, Heater_Profile: {profile}, Heater_Temparature: {temp} <span style={{ color: t.text, fontWeight: 400, fontSize: 13 }}>({groupRows.length} samples)</span>
                     </div>
                     <div style={{ overflowX: 'auto', borderRadius: 5 }}>
-                      <table style={{ width: '100%', borderCollapse: 'collapse', borderRadius: 5, fontSize: 13 }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', borderRadius: 5, fontSize: 13, minWidth: 520 }}>
                         <thead style={{ position: 'sticky', top: 0, zIndex: 2 }}>
                           <tr style={{ background: t.grid }}>
-                            <th style={{ padding: 6, color: t.accent, fontWeight: 700, fontSize: 13, textAlign: 'left', position: 'sticky', top: 0 }}>Sensor</th>
-                            <th style={{ padding: 6, color: t.accent, fontWeight: 700, fontSize: 13, textAlign: 'right', position: 'sticky', top: 0 }}>Mean</th>
-                            <th style={{ padding: 6, color: t.accent, fontWeight: 700, fontSize: 13, textAlign: 'right', position: 'sticky', top: 0 }}>Median</th>
-                            <th style={{ padding: 6, color: t.accent, fontWeight: 700, fontSize: 13, textAlign: 'right', position: 'sticky', top: 0 }}>Min</th>
-                            <th style={{ padding: 6, color: t.accent, fontWeight: 700, fontSize: 13, textAlign: 'right', position: 'sticky', top: 0 }}>Max</th>
-                            <th style={{ padding: 6, color: t.accent, fontWeight: 700, fontSize: 13, textAlign: 'right', position: 'sticky', top: 0 }}>Std</th>
-                            <th style={{ padding: 6, color: t.accent, fontWeight: 700, fontSize: 13, textAlign: 'right', position: 'sticky', top: 0 }}>Count</th>
+                            <th style={{ padding: 6, color: t.accent, fontWeight: 700, fontSize: 13, textAlign: 'left', position: 'sticky', top: 0, borderBottom: '1px solid #e0e0e0' }}>Sensor</th>
+                            <th style={{ padding: 6, color: t.accent, fontWeight: 700, fontSize: 13, textAlign: 'right', position: 'sticky', top: 0, borderBottom: '1px solid #e0e0e0' }}>Mean</th>
+                            <th style={{ padding: 6, color: t.accent, fontWeight: 700, fontSize: 13, textAlign: 'right', position: 'sticky', top: 0, borderBottom: '1px solid #e0e0e0' }}>Median</th>
+                            <th style={{ padding: 6, color: t.accent, fontWeight: 700, fontSize: 13, textAlign: 'right', position: 'sticky', top: 0, borderBottom: '1px solid #e0e0e0' }}>Min</th>
+                            <th style={{ padding: 6, color: t.accent, fontWeight: 700, fontSize: 13, textAlign: 'right', position: 'sticky', top: 0, borderBottom: '1px solid #e0e0e0' }}>Max</th>
+                            <th style={{ padding: 6, color: t.accent, fontWeight: 700, fontSize: 13, textAlign: 'right', position: 'sticky', top: 0, borderBottom: '1px solid #e0e0e0' }}>Std</th>
+                            <th style={{ padding: 6, color: t.accent, fontWeight: 700, fontSize: 13, textAlign: 'right', position: 'sticky', top: 0, borderBottom: '1px solid #e0e0e0' }}>Count</th>
                           </tr>
                         </thead>
                         <tbody>
                           {stats.sensors.map((sensor, idx) => {
                             const s = groupSensorStats[sensor];
                             return (
-                              <tr key={sensor} style={{ background: idx % 2 === 0 ? t.card : t.grid }}>
-                                <td style={{ padding: 5, fontWeight: 500, color: t.text }}>{sensor}</td>
-                                <td style={{ padding: 5, textAlign: 'right', color: t.accent }}>{s.mean !== '-' ? s.mean.toFixed(3) : '-'}</td>
-                                <td style={{ padding: 5, textAlign: 'right', color: t.text }}>{s.median !== '-' ? s.median.toFixed(3) : '-'}</td>
-                                <td style={{ padding: 5, textAlign: 'right', color: t.text }}>{s.min !== '-' ? s.min.toFixed(3) : '-'}</td>
-                                <td style={{ padding: 5, textAlign: 'right', color: t.text }}>{s.max !== '-' ? s.max.toFixed(3) : '-'}</td>
-                                <td style={{ padding: 5, textAlign: 'right', color: t.text }}>{s.std !== '-' ? s.std.toFixed(3) : '-'}</td>
-                                <td style={{ padding: 5, textAlign: 'right', color: t.text }}>{s.count}</td>
+                              <tr key={sensor} style={{ background: idx % 2 === 0 ? t.card : t.grid, transition: 'background 0.2s' }}
+                                onMouseEnter={e => e.currentTarget.style.background = t.accent + '22'}
+                                onMouseLeave={e => e.currentTarget.style.background = idx % 2 === 0 ? t.card : t.grid}>
+                                <td style={{ padding: 5, fontWeight: 500, color: t.text, borderBottom: '1px solid #e0e0e0' }}>{sensor}</td>
+                                <td style={{ padding: 5, textAlign: 'right', color: t.accent, borderBottom: '1px solid #e0e0e0' }}>{s.mean !== '-' ? s.mean.toFixed(3) : '-'}</td>
+                                <td style={{ padding: 5, textAlign: 'right', color: t.text, borderBottom: '1px solid #e0e0e0' }}>{s.median !== '-' ? s.median.toFixed(3) : '-'}</td>
+                                <td style={{ padding: 5, textAlign: 'right', color: t.text, borderBottom: '1px solid #e0e0e0' }}>{s.min !== '-' ? s.min.toFixed(3) : '-'}</td>
+                                <td style={{ padding: 5, textAlign: 'right', color: t.text, borderBottom: '1px solid #e0e0e0' }}>{s.max !== '-' ? s.max.toFixed(3) : '-'}</td>
+                                <td style={{ padding: 5, textAlign: 'right', color: t.text, borderBottom: '1px solid #e0e0e0' }}>{s.std !== '-' ? s.std.toFixed(3) : '-'}</td>
+                                <td style={{ padding: 5, textAlign: 'right', color: t.text, borderBottom: '1px solid #e0e0e0' }}>{s.count}</td>
                               </tr>
                             );
                           })}
