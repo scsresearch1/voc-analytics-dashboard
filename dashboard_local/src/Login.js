@@ -127,7 +127,7 @@ export default function Login() {
       setLoggedIn(true);
       setError('');
       setTimeout(() => {
-        navigate('/dashboard');
+        navigate('/options');
       }, 800);
     } else {
       setError('Invalid username or password.');

@@ -176,7 +176,11 @@ export default function Dashboard() {
     // Clear login state (if any)
     localStorage.clear();
     sessionStorage.clear();
-    navigate('/login');
+    navigate('/options');
+  }
+
+  function handleBackToOptions() {
+    navigate('/options');
   }
 
   function toggleCol(col) {
@@ -285,6 +289,22 @@ export default function Dashboard() {
             Toggle {theme === 'dark' ? 'Light' : 'Dark'} Mode
           </button>
             <button
+              onClick={handleBackToOptions}
+              style={{
+                padding: '8px 12px',
+                borderRadius: 8,
+                background: t.accent,
+                color: '#fff',
+                fontWeight: 600,
+                fontSize: 14,
+                border: 'none',
+                cursor: 'pointer',
+                marginLeft: 0
+              }}
+            >
+              ← Back
+            </button>
+            <button
               onClick={handleLogout}
               style={{
                 padding: '8px 12px',
@@ -295,7 +315,7 @@ export default function Dashboard() {
                 fontSize: 14,
                 border: 'none',
                 cursor: 'pointer',
-                marginLeft: 0
+                marginLeft: 8
               }}
             >
               Logout
