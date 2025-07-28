@@ -181,7 +181,7 @@ export default function DataFormat() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'VOC_Sample_Data.csv';
+    a.download = 'Sample_Format_CSV.csv';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
