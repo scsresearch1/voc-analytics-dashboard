@@ -161,31 +161,28 @@ export default function DataFormat() {
   };
 
   const handleDownloadSample = () => {
-    // Create sample CSV content with actual column structure
-    const sampleData = `SNO,Date,Time,Phase,Heater_Profile,MQ136_RAW,MQ138_RAW,BME1_Temp,BME1_Hum,BME1_HeaterRes,SGP40_VOC,VoC,Concentration,Distance
-1,2024-01-01,10:00:00:123456,Pre-Puff,322,125.5,89.2,23.4,45.6,1024,156,None,0 ppm,30
-2,2024-01-01,10:01:00:234567,Pre-Puff,338,126.1,89.8,23.6,45.8,1025,158,None,0 ppm,30
-3,2024-01-01,10:02:00:345678,Pre-Puff,354,125.8,89.5,23.5,45.7,1024,157,None,0 ppm,30
-4,2024-01-01,10:03:00:456789,Puff,370,145.2,95.6,25.2,48.9,1150,245,Toluene,2 ppm,30
-5,2024-01-01,10:04:00:567890,Puff,386,145.8,96.1,25.4,49.1,1152,248,Toluene,2 ppm,30
-6,2024-01-01,10:05:00:678901,Puff,402,145.5,95.8,25.3,49.0,1151,246,Toluene,2 ppm,30
-7,2024-01-01,10:06:00:789012,Puff,418,147.2,97.6,25.6,49.3,1155,252,Toluene,2 ppm,30
-8,2024-01-01,10:07:00:890123,Puff,434,148.1,98.1,25.8,49.5,1158,255,Toluene,2 ppm,30
-9,2024-01-01,10:08:00:901234,Post-Puff,450,135.2,92.6,24.2,47.9,1080,180,None,0 ppm,30
-10,2024-01-01,10:09:00:012345,Post-Puff,466,134.8,92.1,24.0,47.7,1078,178,None,0 ppm,30
-11,2024-01-01,10:10:00:123456,Post-Puff,482,134.5,91.8,23.9,47.6,1077,177,None,0 ppm,30
-12,2024-01-01,10:11:00:234567,Post-Puff,498,134.2,91.5,23.8,47.5,1076,176,None,0 ppm,30`;
-
-    // Create and download file
-    const blob = new Blob([sampleData], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'Sample_Format_CSV.csv';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+    // Fetch and download the actual Sample_Format_CSV.csv file
+    fetch('/Sample_Format_CSV.csv')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch sample file');
+        }
+        return response.blob();
+      })
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Sample_Format_CSV.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(error => {
+        console.error('Error downloading sample file:', error);
+        alert('Failed to download sample file. Please try again.');
+      });
   };
 
   const legends = [
