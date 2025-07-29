@@ -162,7 +162,7 @@ export default function DataFormat() {
 
   const handleDownloadSample = () => {
     // Create sample CSV content with actual column structure
-    const sampleData = `SNO,Date,Time,Phase,Heater_Profile,MQ136_RAW,MQ138_RAW,BME1_Temp,BME1_Hum,BME1_HeaterRes,SGP40_VOC,Activated,Concentration,Distance
+    const sampleData = `SNO,Date,Time,Phase,Heater_Profile,MQ136_RAW,MQ138_RAW,BME1_Temp,BME1_Hum,BME1_HeaterRes,SGP40_VOC,VoC,Concentration,Distance
 1,2024-01-01,10:00:00:123456,Pre-Puff,322,125.5,89.2,23.4,45.6,1024,156,None,0 ppm,30
 2,2024-01-01,10:01:00:234567,Pre-Puff,338,126.1,89.8,23.6,45.8,1025,158,None,0 ppm,30
 3,2024-01-01,10:02:00:345678,Pre-Puff,354,125.8,89.5,23.5,45.7,1024,157,None,0 ppm,30
@@ -216,7 +216,7 @@ export default function DataFormat() {
       title: '🧪 VOC Testing Parameters',
       description: 'Information about the VOC being tested and experimental conditions.',
       details: [
-        { sensor: 'Activated', description: 'Name of the active VOC under test (e.g., Toluene, 1-Octen-3-ol)' },
+        { sensor: 'VoC', description: 'Name of the active VOC under test (e.g., Toluene, 1-Octen-3-ol)' },
         { sensor: 'Concentration', description: 'Known concentration label of the tested VOC (e.g., 2 ppm, 5 ppm)' },
         { sensor: 'Distance', description: 'Distance between sensor and VOC source (cm or ft depending on protocol)' }
       ]
@@ -344,7 +344,7 @@ export default function DataFormat() {
                   <td style={styles.tableCell}>156</td>
                 </tr>
                 <tr>
-                  <td style={styles.tableCell}><span style={styles.code}>Activated</span></td>
+                  <td style={styles.tableCell}><span style={styles.code}>VoC</span></td>
                   <td style={styles.tableCell}>String</td>
                   <td style={styles.tableCell}>Name of the active VOC under test (e.g., Toluene, 1-Octen-3-ol).</td>
                   <td style={styles.tableCell}>Toluene, 1-Octen-3-ol</td>
@@ -398,7 +398,7 @@ export default function DataFormat() {
         
         <div style={styles.downloadSection}>
           <h2 style={styles.sectionTitle}>
-            📥 Download Sample File
+            📥 Download Sample File with simulated data
           </h2>
           <div style={styles.sectionContent}>
             <p>
