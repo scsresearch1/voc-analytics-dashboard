@@ -5,9 +5,24 @@ const styles = {
   container: {
     minHeight: '100vh',
     background: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)',
-    padding: '20px',
+    display: 'flex',
+  },
+  sidebar: {
+    width: '280px',
+    background: 'rgba(0,0,0,0.2)',
+    padding: '24px',
     display: 'flex',
     flexDirection: 'column',
+    gap: '20px',
+    backdropFilter: 'blur(10px)',
+    borderRight: '1px solid rgba(255,255,255,0.1)',
+  },
+  mainContent: {
+    flex: 1,
+    padding: '32px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '24px',
   },
   header: {
     color: '#fff',
@@ -35,11 +50,37 @@ const styles = {
     background: 'rgba(255,255,255,0.3)',
     transform: 'scale(1.05)',
   },
-  content: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-    gap: '20px',
-    marginTop: '20px',
+  sidebarTitle: {
+    color: '#fff',
+    fontSize: '1.5rem',
+    fontWeight: 700,
+    marginBottom: '15px',
+  },
+  select: {
+    width: '100%',
+    padding: '10px',
+    borderRadius: '8px',
+    border: '1px solid rgba(255,255,255,0.3)',
+    background: 'rgba(255,255,255,0.1)',
+    color: '#fff',
+    fontSize: '14px',
+    marginBottom: '15px',
+  },
+  button: {
+    padding: '12px 16px',
+    borderRadius: '8px',
+    border: 'none',
+    background: 'linear-gradient(90deg, #00c6ff 0%, #0072ff 100%)',
+    color: '#fff',
+    fontWeight: 600,
+    cursor: 'pointer',
+    fontSize: '14px',
+    transition: 'all 0.3s ease',
+    marginBottom: '10px',
+  },
+  buttonHover: {
+    background: 'linear-gradient(90deg, #0072ff 0%, #00c6ff 100%)',
+    transform: 'scale(1.02)',
   },
   card: {
     background: 'rgba(255,255,255,0.1)',
@@ -53,7 +94,7 @@ const styles = {
   cardTitle: {
     fontSize: '1.5rem',
     fontWeight: 700,
-    marginBottom: '15px',
+    marginBottom: '20px',
     color: '#fff',
     borderBottom: '2px solid rgba(255,255,255,0.3)',
     paddingBottom: '10px',
@@ -89,80 +130,80 @@ const styles = {
   },
   heaterProfileGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: '15px',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+    gap: '20px',
     marginTop: '15px',
   },
-  heaterProfileItem: {
+  heaterProfileCard: {
     background: 'rgba(255,255,255,0.1)',
-    padding: '15px',
-    borderRadius: '10px',
-    textAlign: 'center',
+    padding: '20px',
+    borderRadius: '12px',
     border: '1px solid rgba(255,255,255,0.2)',
   },
-  heaterProfileValue: {
+  heaterProfileTitle: {
     fontSize: '1.3rem',
     fontWeight: 700,
     color: '#4fc3f7',
+    marginBottom: '15px',
+    textAlign: 'center',
+  },
+  phaseSection: {
+    marginBottom: '15px',
+  },
+  phaseTitle: {
+    fontSize: '1rem',
+    fontWeight: 600,
+    color: '#fff',
+    marginBottom: '10px',
+    padding: '8px',
+    background: 'rgba(255,255,255,0.1)',
+    borderRadius: '6px',
+  },
+  sensorStats: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+    gap: '8px',
     marginBottom: '10px',
   },
-  heaterProfileStats: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '8px',
-    marginTop: '10px',
-  },
-  heaterProfileStat: {
+  sensorStat: {
     fontSize: '0.8rem',
     color: 'rgba(255,255,255,0.8)',
+    textAlign: 'center',
+    padding: '6px',
+    background: 'rgba(255,255,255,0.05)',
+    borderRadius: '4px',
   },
-  heaterProfileStatValue: {
-    fontSize: '1rem',
+  sensorStatValue: {
+    fontSize: '0.9rem',
     fontWeight: 600,
     color: '#4fc3f7',
   },
-  downloadSection: {
-    background: 'rgba(255,255,255,0.1)',
-    borderRadius: '10px',
-    padding: '20px',
-    marginTop: '15px',
-    textAlign: 'center',
-  },
-  downloadButton: {
-    background: 'linear-gradient(90deg, #00c6ff 0%, #0072ff 100%)',
-    color: '#fff',
-    padding: '12px 24px',
+  csvViewer: {
+    background: 'rgba(0,0,0,0.3)',
     borderRadius: '8px',
-    border: 'none',
-    fontSize: '1rem',
-    fontWeight: 600,
-    cursor: 'pointer',
-    transition: 'all 0.3s ease',
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '8px',
-    margin: '10px',
+    padding: '15px',
+    marginTop: '15px',
+    maxHeight: '400px',
+    overflow: 'auto',
   },
-  downloadButtonHover: {
-    background: 'linear-gradient(90deg, #0072ff 0%, #00c6ff 100%)',
-    transform: 'scale(1.05)',
-  },
-  dataTable: {
+  csvTable: {
     width: '100%',
     borderCollapse: 'collapse',
-    marginTop: '15px',
-    fontSize: '0.9rem',
+    fontSize: '0.8rem',
   },
-  tableHeader: {
+  csvHeader: {
     background: 'rgba(255,255,255,0.1)',
-    padding: '10px',
+    padding: '8px',
     textAlign: 'left',
     fontWeight: 600,
     borderBottom: '1px solid rgba(255,255,255,0.2)',
+    position: 'sticky',
+    top: 0,
   },
-  tableCell: {
-    padding: '8px 10px',
+  csvCell: {
+    padding: '6px 8px',
     borderBottom: '1px solid rgba(255,255,255,0.1)',
+    fontSize: '0.75rem',
   },
   loading: {
     textAlign: 'center',
@@ -176,80 +217,70 @@ const styles = {
     fontSize: '1.2rem',
     marginTop: '50px',
   },
-  phaseStats: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: '15px',
-    marginTop: '15px',
+  fileSelector: {
+    marginBottom: '20px',
   },
-  phaseCard: {
-    background: 'rgba(255,255,255,0.1)',
-    padding: '15px',
-    borderRadius: '10px',
-    border: '1px solid rgba(255,255,255,0.2)',
-  },
-  phaseTitle: {
-    fontSize: '1.1rem',
+  fileSelectorLabel: {
+    color: '#fff',
+    fontSize: '1rem',
     fontWeight: 600,
-    marginBottom: '10px',
-    color: '#4fc3f7',
+    marginBottom: '8px',
+    display: 'block',
   },
-  sensorComparison: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-    gap: '15px',
-    marginTop: '15px',
-  },
-  sensorCard: {
+  // Tab styles
+  tabContainer: {
+    display: 'flex',
     background: 'rgba(255,255,255,0.1)',
-    padding: '15px',
     borderRadius: '10px',
-    border: '1px solid rgba(255,255,255,0.2)',
+    padding: '5px',
+    marginBottom: '20px',
+    backdropFilter: 'blur(10px)',
   },
-  sensorTitle: {
-    fontSize: '1.1rem',
-    fontWeight: 600,
-    marginBottom: '10px',
-    color: '#4fc3f7',
-  },
-  sensorStats: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '10px',
-  },
-  sensorStat: {
-    textAlign: 'center',
-    padding: '8px',
-    background: 'rgba(255,255,255,0.1)',
-    borderRadius: '5px',
-  },
-  sensorStatValue: {
-    fontSize: '1.1rem',
-    fontWeight: 700,
-    color: '#4fc3f7',
-  },
-  sensorStatLabel: {
-    fontSize: '0.8rem',
+  tab: {
+    flex: 1,
+    padding: '12px 20px',
+    borderRadius: '8px',
+    border: 'none',
+    background: 'transparent',
     color: 'rgba(255,255,255,0.7)',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: 600,
+    transition: 'all 0.3s ease',
+  },
+  activeTab: {
+    background: 'linear-gradient(90deg, #00c6ff 0%, #0072ff 100%)',
+    color: '#fff',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+  },
+  tabContent: {
+    display: 'none',
+  },
+  activeTabContent: {
+    display: 'block',
   },
 };
 
 export default function Phase2Dashboard() {
   const navigate = useNavigate();
   const [hovered, setHovered] = useState(false);
-  const [downloadHovered, setDownloadHovered] = useState(false);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedFile, setSelectedFile] = useState('01Aug_Phase2_Ammonia.csv');
+  const [availableFiles, setAvailableFiles] = useState([
+    '01Aug_Phase2_Ammonia.csv'
+  ]);
+  const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
     loadData();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [selectedFile]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/Phase2/01Aug_Phase2_Ammonia.csv');
+      const response = await fetch(`/Phase2/${selectedFile}`);
       if (!response.ok) {
         throw new Error('Failed to load data');
       }
@@ -277,10 +308,11 @@ export default function Phase2Dashboard() {
     return data;
   };
 
-  const calculateStats = (data) => {
+  const calculateDetailedStats = (data) => {
     if (!data || data.length === 0) return {};
 
     const phases = ['Pre-Puff', 'Puff', 'Post-Puff'];
+    const sensors = ['BME_HeaterRes', 'MQ136_RAW', 'MQ138_RAW', 'Alpha_PID', 'SPEC', 'SGP40_VOC'];
     const stats = {};
 
     // Overall stats
@@ -288,72 +320,90 @@ export default function Phase2Dashboard() {
     stats.uniqueHeaterProfiles = [...new Set(data.map(row => row.Heater_Profile))].length;
     stats.avgBMEHeaterRes = data.reduce((sum, row) => sum + parseFloat(row.BME_HeaterRes || 0), 0) / data.length;
 
-    // Phase-specific stats
+    // Detailed Heater Profile analysis with nested phase stats
+    const heaterProfileStats = {};
+    data.forEach(row => {
+      const profile = row.Heater_Profile;
+      const phase = row.Phase;
+      
+      if (!heaterProfileStats[profile]) {
+        heaterProfileStats[profile] = {
+          totalCount: 0,
+          phases: {}
+        };
+        
+        // Initialize phase structure
+        phases.forEach(phaseName => {
+          heaterProfileStats[profile].phases[phaseName] = {
+            count: 0,
+            sensors: {}
+          };
+          
+          sensors.forEach(sensor => {
+            heaterProfileStats[profile].phases[phaseName].sensors[sensor] = {
+              values: [],
+              min: 0,
+              max: 0,
+              avg: 0
+            };
+          });
+        });
+      }
+      
+      heaterProfileStats[profile].totalCount++;
+      
+      if (heaterProfileStats[profile].phases[phase]) {
+        heaterProfileStats[profile].phases[phase].count++;
+        
+        sensors.forEach(sensor => {
+          const value = parseFloat(row[sensor] || 0);
+          if (!isNaN(value)) {
+            heaterProfileStats[profile].phases[phase].sensors[sensor].values.push(value);
+          }
+        });
+      }
+    });
+
+    // Calculate min/max/avg for each sensor in each phase for each profile
+    Object.keys(heaterProfileStats).forEach(profile => {
+      Object.keys(heaterProfileStats[profile].phases).forEach(phase => {
+        const phaseData = heaterProfileStats[profile].phases[phase];
+        
+        sensors.forEach(sensor => {
+          const values = phaseData.sensors[sensor].values;
+          if (values.length > 0) {
+            phaseData.sensors[sensor].min = Math.min(...values);
+            phaseData.sensors[sensor].max = Math.max(...values);
+            phaseData.sensors[sensor].avg = values.reduce((sum, val) => sum + val, 0) / values.length;
+          }
+        });
+      });
+    });
+
+    stats.heaterProfiles = heaterProfileStats;
+
+    // Phase-specific overall stats
     stats.phases = {};
     phases.forEach(phase => {
       const phaseData = data.filter(row => row.Phase === phase);
       if (phaseData.length > 0) {
         stats.phases[phase] = {
           count: phaseData.length,
-          avgMQ136: phaseData.reduce((sum, row) => sum + parseFloat(row.MQ136_RAW || 0), 0) / phaseData.length,
-          avgMQ138: phaseData.reduce((sum, row) => sum + parseFloat(row.MQ138_RAW || 0), 0) / phaseData.length,
-          avgBME_Temp: phaseData.reduce((sum, row) => sum + parseFloat(row.BME_Temp || 0), 0) / phaseData.length,
-          avgBME_Hum: phaseData.reduce((sum, row) => sum + parseFloat(row.BME_Hum || 0), 0) / phaseData.length,
-          avgBME_HeaterRes: phaseData.reduce((sum, row) => sum + parseFloat(row.BME_HeaterRes || 0), 0) / phaseData.length,
-          avgAlpha_PID: phaseData.reduce((sum, row) => sum + parseFloat(row.Alpha_PID || 0), 0) / phaseData.length,
-          avgSPEC: phaseData.reduce((sum, row) => sum + parseFloat(row.SPEC || 0), 0) / phaseData.length,
-          avgSGP40_VOC: phaseData.reduce((sum, row) => sum + parseFloat(row.SGP40_VOC || 0), 0) / phaseData.length,
+          sensors: {}
         };
+        
+        sensors.forEach(sensor => {
+          const values = phaseData.map(row => parseFloat(row[sensor] || 0)).filter(v => !isNaN(v));
+          if (values.length > 0) {
+            stats.phases[phase].sensors[sensor] = {
+              min: Math.min(...values),
+              max: Math.max(...values),
+              avg: values.reduce((sum, val) => sum + val, 0) / values.length
+            };
+          }
+        });
       }
     });
-
-    // Detailed Heater Profile analysis with BME stats
-    const heaterProfileStats = {};
-    data.forEach(row => {
-      const profile = row.Heater_Profile;
-      if (!heaterProfileStats[profile]) {
-        heaterProfileStats[profile] = {
-          count: 0,
-          bmeValues: [],
-          mq136Values: [],
-          mq138Values: [],
-          alphaPIDValues: [],
-          specValues: [],
-          sgp40Values: []
-        };
-      }
-      heaterProfileStats[profile].count++;
-      heaterProfileStats[profile].bmeValues.push(parseFloat(row.BME_HeaterRes || 0));
-      heaterProfileStats[profile].mq136Values.push(parseFloat(row.MQ136_RAW || 0));
-      heaterProfileStats[profile].mq138Values.push(parseFloat(row.MQ138_RAW || 0));
-      heaterProfileStats[profile].alphaPIDValues.push(parseFloat(row.Alpha_PID || 0));
-      heaterProfileStats[profile].specValues.push(parseFloat(row.SPEC || 0));
-      heaterProfileStats[profile].sgp40Values.push(parseFloat(row.SGP40_VOC || 0));
-    });
-
-    // Calculate min/max for each heater profile
-    Object.keys(heaterProfileStats).forEach(profile => {
-      const stats = heaterProfileStats[profile];
-      stats.bmeMin = Math.min(...stats.bmeValues);
-      stats.bmeMax = Math.max(...stats.bmeValues);
-      stats.bmeAvg = stats.bmeValues.reduce((sum, val) => sum + val, 0) / stats.bmeValues.length;
-      stats.mq136Avg = stats.mq136Values.reduce((sum, val) => sum + val, 0) / stats.mq136Values.length;
-      stats.mq138Avg = stats.mq138Values.reduce((sum, val) => sum + val, 0) / stats.mq138Values.length;
-      stats.alphaPIDAvg = stats.alphaPIDValues.reduce((sum, val) => sum + val, 0) / stats.alphaPIDValues.length;
-      stats.specAvg = stats.specValues.reduce((sum, val) => sum + val, 0) / stats.specValues.length;
-      stats.sgp40Avg = stats.sgp40Values.reduce((sum, val) => sum + val, 0) / stats.sgp40Values.length;
-    });
-
-    stats.heaterProfiles = heaterProfileStats;
-
-    // BME_HeaterRes analysis
-    const bmeHeaterResValues = data.map(row => parseFloat(row.BME_HeaterRes || 0));
-    stats.bmeHeaterResStats = {
-      min: Math.min(...bmeHeaterResValues),
-      max: Math.max(...bmeHeaterResValues),
-      avg: bmeHeaterResValues.reduce((sum, val) => sum + val, 0) / bmeHeaterResValues.length,
-      std: Math.sqrt(bmeHeaterResValues.reduce((sum, val) => sum + Math.pow(val - stats.avgBMEHeaterRes, 2), 0) / bmeHeaterResValues.length),
-    };
 
     return stats;
   };
@@ -361,7 +411,6 @@ export default function Phase2Dashboard() {
   const handleDownloadCSV = () => {
     if (!data) return;
     
-    // Convert data back to CSV format
     const headers = Object.keys(data[0]);
     const csvContent = [
       headers.join(','),
@@ -372,7 +421,7 @@ export default function Phase2Dashboard() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'Phase2_Ammonia_Data.csv';
+    a.download = selectedFile.replace('.csv', '_export.csv');
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -399,7 +448,7 @@ export default function Phase2Dashboard() {
     );
   }
 
-  const stats = calculateStats(data);
+  const stats = calculateDetailedStats(data);
 
   return (
     <div style={styles.container}>
@@ -412,57 +461,203 @@ export default function Phase2Dashboard() {
         ← Back to Options
       </button>
 
-      <h1 style={styles.header}>Phase 2 Bio Lab Testing Dashboard</h1>
+      {/* Sidebar */}
+      <div style={styles.sidebar}>
+        <h2 style={styles.sidebarTitle}>Phase 2 Analytics</h2>
+        
+        <div style={styles.fileSelector}>
+          <label style={styles.fileSelectorLabel}>Select VOC File:</label>
+          <select 
+            style={styles.select} 
+            value={selectedFile} 
+            onChange={(e) => setSelectedFile(e.target.value)}
+          >
+            {availableFiles.map(file => (
+              <option key={file} value={file}>{file}</option>
+            ))}
+          </select>
+        </div>
 
-      <div style={styles.content}>
-        {/* Overview Stats */}
-        <div style={styles.card}>
-          <h2 style={styles.cardTitle}>📊 Overview Statistics</h2>
-          <div style={styles.statsGrid}>
-            <div style={styles.statItem}>
-              <div style={styles.statValue}>{stats.totalRecords?.toLocaleString()}</div>
-              <div style={styles.statLabel}>Total Records</div>
-            </div>
-            <div style={styles.statItem}>
-              <div style={styles.statValue}>{stats.uniqueHeaterProfiles}</div>
-              <div style={styles.statLabel}>Unique Heater Profiles</div>
-            </div>
-            <div style={styles.statItem}>
-              <div style={styles.statValue}>{stats.avgBMEHeaterRes?.toFixed(0)}</div>
-              <div style={styles.statLabel}>Avg BME Heater Res</div>
-            </div>
-            <div style={styles.statItem}>
-              <div style={styles.statValue}>Ammonia</div>
-              <div style={styles.statLabel}>VOC Tested</div>
+        <button 
+          style={styles.button}
+          onClick={handleDownloadCSV}
+        >
+          📄 Download CSV
+        </button>
+
+        <div style={styles.statsGrid}>
+          <div style={styles.statItem}>
+            <div style={styles.statValue}>{stats.totalRecords?.toLocaleString()}</div>
+            <div style={styles.statLabel}>Total Records</div>
+          </div>
+          <div style={styles.statItem}>
+            <div style={styles.statValue}>{stats.uniqueHeaterProfiles}</div>
+            <div style={styles.statLabel}>Heater Profiles</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div style={styles.mainContent}>
+        <h1 style={styles.header}>Phase 2 Bio Lab Testing Dashboard</h1>
+        <div style={{ textAlign: 'center', color: '#ff4444', fontSize: '1.2rem', fontWeight: 600, marginBottom: '20px' }}>
+          On going
+        </div>
+
+        {/* Tab Navigation */}
+        <div style={styles.tabContainer}>
+          <button
+            style={activeTab === 'overview' ? { ...styles.tab, ...styles.activeTab } : styles.tab}
+            onClick={() => setActiveTab('overview')}
+          >
+            📊 Overview
+          </button>
+          <button
+            style={activeTab === 'profiles' ? { ...styles.tab, ...styles.activeTab } : styles.tab}
+            onClick={() => setActiveTab('profiles')}
+          >
+            🔥 Heater Profiles
+          </button>
+          <button
+            style={activeTab === 'phases' ? { ...styles.tab, ...styles.activeTab } : styles.tab}
+            onClick={() => setActiveTab('phases')}
+          >
+            ⏱️ Phase Analysis
+          </button>
+          <button
+            style={activeTab === 'csv' ? { ...styles.tab, ...styles.activeTab } : styles.tab}
+            onClick={() => setActiveTab('csv')}
+          >
+            📋 CSV Viewer
+          </button>
+        </div>
+
+        {/* Overview Tab */}
+        <div style={activeTab === 'overview' ? styles.activeTabContent : styles.tabContent}>
+          <div style={styles.card}>
+            <h2 style={styles.cardTitle}>📊 Overview Statistics</h2>
+            <div style={styles.statsGrid}>
+              <div style={styles.statItem}>
+                <div style={styles.statValue}>{stats.totalRecords?.toLocaleString()}</div>
+                <div style={styles.statLabel}>Total Records</div>
+              </div>
+              <div style={styles.statItem}>
+                <div style={styles.statValue}>{stats.uniqueHeaterProfiles}</div>
+                <div style={styles.statLabel}>Unique Heater Profiles</div>
+              </div>
+              <div style={styles.statItem}>
+                <div style={styles.statValue}>{stats.avgBMEHeaterRes?.toFixed(0)}</div>
+                <div style={styles.statLabel}>Avg BME Heater Res</div>
+              </div>
+              <div style={styles.statItem}>
+                <div style={styles.statValue}>Ammonia</div>
+                <div style={styles.statLabel}>VOC Tested</div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Detailed Heater Profile Analysis */}
-        <div style={styles.card}>
-          <h2 style={styles.cardTitle}>🔥 Detailed Heater Profile Analysis</h2>
-          <div style={styles.heaterProfileSection}>
-            <div style={styles.heaterProfileGrid}>
-              {Object.entries(stats.heaterProfiles || {}).map(([profile, profileStats]) => (
-                <div key={profile} style={styles.heaterProfileItem}>
-                  <div style={styles.heaterProfileValue}>Profile {profile}</div>
-                  <div style={styles.heaterProfileStats}>
-                    <div style={styles.heaterProfileStat}>
-                      <div style={styles.heaterProfileStatValue}>{profileStats.count}</div>
-                      <div>Records</div>
+        {/* Heater Profiles Tab */}
+        <div style={activeTab === 'profiles' ? styles.activeTabContent : styles.tabContent}>
+          <div style={styles.card}>
+            <h2 style={styles.cardTitle}>🔥 Detailed Heater Profile Analysis</h2>
+            <div style={styles.heaterProfileSection}>
+              <div style={styles.heaterProfileGrid}>
+                {Object.entries(stats.heaterProfiles || {}).map(([profile, profileStats]) => (
+                  <div key={profile} style={styles.heaterProfileCard}>
+                    <div style={styles.heaterProfileTitle}>Profile {profile}</div>
+                    <div style={{ fontSize: '0.9rem', textAlign: 'center', marginBottom: '15px', color: 'rgba(255,255,255,0.8)' }}>
+                      Total Records: {profileStats.totalCount}
                     </div>
-                    <div style={styles.heaterProfileStat}>
-                      <div style={styles.heaterProfileStatValue}>{profileStats.bmeMin?.toLocaleString()}</div>
-                      <div>BME Min</div>
-                    </div>
-                    <div style={styles.heaterProfileStat}>
-                      <div style={styles.heaterProfileStatValue}>{profileStats.bmeMax?.toLocaleString()}</div>
-                      <div>BME Max</div>
-                    </div>
-                    <div style={styles.heaterProfileStat}>
-                      <div style={styles.heaterProfileStatValue}>{profileStats.bmeAvg?.toFixed(0)}</div>
-                      <div>BME Avg</div>
-                    </div>
+                    
+                    {['Pre-Puff', 'Puff', 'Post-Puff'].map(phase => {
+                      const phaseData = profileStats.phases[phase];
+                      if (!phaseData || phaseData.count === 0) return null;
+                      
+                      return (
+                        <div key={phase} style={styles.phaseSection}>
+                          <div style={styles.phaseTitle}>{phase} ({phaseData.count} records)</div>
+                          
+                          {/* BME Heater Resistance */}
+                          <div style={styles.sensorStats}>
+                            <div style={styles.sensorStat}>
+                              <div style={styles.sensorStatValue}>
+                                {phaseData.sensors.BME_HeaterRes?.min?.toLocaleString()}
+                              </div>
+                              <div>BME Min</div>
+                            </div>
+                            <div style={styles.sensorStat}>
+                              <div style={styles.sensorStatValue}>
+                                {phaseData.sensors.BME_HeaterRes?.max?.toLocaleString()}
+                              </div>
+                              <div>BME Max</div>
+                            </div>
+                            <div style={styles.sensorStat}>
+                              <div style={styles.sensorStatValue}>
+                                {phaseData.sensors.BME_HeaterRes?.avg?.toFixed(0)}
+                              </div>
+                              <div>BME Avg</div>
+                            </div>
+                          </div>
+
+                          {/* MQ Sensors */}
+                          <div style={styles.sensorStats}>
+                            <div style={styles.sensorStat}>
+                              <div style={styles.sensorStatValue}>
+                                {phaseData.sensors.MQ136_RAW?.avg?.toFixed(2)}
+                              </div>
+                              <div>MQ136 Avg</div>
+                            </div>
+                            <div style={styles.sensorStat}>
+                              <div style={styles.sensorStatValue}>
+                                {phaseData.sensors.MQ138_RAW?.avg?.toFixed(2)}
+                              </div>
+                              <div>MQ138 Avg</div>
+                            </div>
+                          </div>
+
+                          {/* Additional Sensors */}
+                          <div style={styles.sensorStats}>
+                            <div style={styles.sensorStat}>
+                              <div style={styles.sensorStatValue}>
+                                {phaseData.sensors.Alpha_PID?.avg?.toFixed(2)}
+                              </div>
+                              <div>Alpha PID</div>
+                            </div>
+                            <div style={styles.sensorStat}>
+                              <div style={styles.sensorStatValue}>
+                                {phaseData.sensors.SPEC?.avg?.toFixed(0)}
+                              </div>
+                              <div>SPEC</div>
+                            </div>
+                            <div style={styles.sensorStat}>
+                              <div style={styles.sensorStatValue}>
+                                {phaseData.sensors.SGP40_VOC?.avg?.toFixed(0)}
+                              </div>
+                              <div>SGP40</div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Phase Analysis Tab */}
+        <div style={activeTab === 'phases' ? styles.activeTabContent : styles.tabContent}>
+          <div style={styles.card}>
+            <h2 style={styles.cardTitle}>⏱️ Overall Phase Analysis</h2>
+            <div style={styles.statsGrid}>
+              {Object.entries(stats.phases || {}).map(([phase, phaseStats]) => (
+                <div key={phase} style={styles.statItem}>
+                  <div style={styles.statValue}>{phaseStats.count}</div>
+                  <div style={styles.statLabel}>{phase} Records</div>
+                  <div style={{ fontSize: '0.8rem', marginTop: '5px', color: 'rgba(255,255,255,0.7)' }}>
+                    BME Avg: {phaseStats.sensors?.BME_HeaterRes?.avg?.toFixed(0)}
                   </div>
                 </div>
               ))}
@@ -470,166 +665,34 @@ export default function Phase2Dashboard() {
           </div>
         </div>
 
-        {/* CSV Download Section */}
-        <div style={styles.card}>
-          <h2 style={styles.cardTitle}>📥 Data Export</h2>
-          <div style={styles.downloadSection}>
-            <p style={{ marginBottom: '15px', color: 'rgba(255,255,255,0.8)' }}>
-              Download the complete Phase 2 Ammonia dataset for further analysis
-            </p>
-            <button
-              style={downloadHovered ? { ...styles.downloadButton, ...styles.downloadButtonHover } : styles.downloadButton}
-              onClick={handleDownloadCSV}
-              onMouseEnter={() => setDownloadHovered(true)}
-              onMouseLeave={() => setDownloadHovered(false)}
-            >
-              📄 Download Phase 2 CSV
-            </button>
-          </div>
-        </div>
-
-        {/* BME Heater Resistance Analysis */}
-        <div style={styles.card}>
-          <h2 style={styles.cardTitle}>🌡️ BME Heater Resistance Analysis</h2>
-          <div style={styles.statsGrid}>
-            <div style={styles.statItem}>
-              <div style={styles.statValue}>{stats.bmeHeaterResStats?.min?.toLocaleString()}</div>
-              <div style={styles.statLabel}>Min Value</div>
-            </div>
-            <div style={styles.statItem}>
-              <div style={styles.statValue}>{stats.bmeHeaterResStats?.max?.toLocaleString()}</div>
-              <div style={styles.statLabel}>Max Value</div>
-            </div>
-            <div style={styles.statItem}>
-              <div style={styles.statValue}>{stats.bmeHeaterResStats?.avg?.toFixed(0)}</div>
-              <div style={styles.statLabel}>Average</div>
-            </div>
-            <div style={styles.statItem}>
-              <div style={styles.statValue}>{stats.bmeHeaterResStats?.std?.toFixed(0)}</div>
-              <div style={styles.statLabel}>Std Deviation</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Phase Analysis */}
-        <div style={styles.card}>
-          <h2 style={styles.cardTitle}>⏱️ Phase Analysis</h2>
-          <div style={styles.phaseStats}>
-            {Object.entries(stats.phases || {}).map(([phase, phaseStats]) => (
-              <div key={phase} style={styles.phaseCard}>
-                <div style={styles.phaseTitle}>{phase}</div>
-                <div style={styles.statsGrid}>
-                  <div style={styles.statItem}>
-                    <div style={styles.statValue}>{phaseStats.count}</div>
-                    <div style={styles.statLabel}>Records</div>
-                  </div>
-                  <div style={styles.statItem}>
-                    <div style={styles.statValue}>{phaseStats.avgBME_HeaterRes?.toFixed(0)}</div>
-                    <div style={styles.statLabel}>Avg BME Heater Res</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Sensor Comparison */}
-        <div style={styles.card}>
-          <h2 style={styles.cardTitle}>📡 Sensor Comparison</h2>
-          <div style={styles.sensorComparison}>
-            <div style={styles.sensorCard}>
-              <div style={styles.sensorTitle}>MQ136 Sensor</div>
-              <div style={styles.sensorStats}>
-                <div style={styles.sensorStat}>
-                  <div style={styles.sensorStatValue}>
-                    {stats.phases?.Puff?.avgMQ136?.toFixed(2)}
-                  </div>
-                  <div style={styles.sensorStatLabel}>Puff Avg</div>
-                </div>
-                <div style={styles.sensorStat}>
-                  <div style={styles.sensorStatValue}>
-                    {stats.phases?.['Pre-Puff']?.avgMQ136?.toFixed(2)}
-                  </div>
-                  <div style={styles.sensorStatLabel}>Pre-Puff Avg</div>
-                </div>
-              </div>
-            </div>
-
-            <div style={styles.sensorCard}>
-              <div style={styles.sensorTitle}>MQ138 Sensor</div>
-              <div style={styles.sensorStats}>
-                <div style={styles.sensorStat}>
-                  <div style={styles.sensorStatValue}>
-                    {stats.phases?.Puff?.avgMQ138?.toFixed(2)}
-                  </div>
-                  <div style={styles.sensorStatLabel}>Puff Avg</div>
-                </div>
-                <div style={styles.sensorStat}>
-                  <div style={styles.sensorStatValue}>
-                    {stats.phases?.['Pre-Puff']?.avgMQ138?.toFixed(2)}
-                  </div>
-                  <div style={styles.sensorStatLabel}>Pre-Puff Avg</div>
-                </div>
-              </div>
-            </div>
-
-            <div style={styles.sensorCard}>
-              <div style={styles.sensorTitle}>Alpha PID</div>
-              <div style={styles.sensorStats}>
-                <div style={styles.sensorStat}>
-                  <div style={styles.sensorStatValue}>
-                    {stats.phases?.Puff?.avgAlpha_PID?.toFixed(2)}
-                  </div>
-                  <div style={styles.sensorStatLabel}>Puff Avg</div>
-                </div>
-                <div style={styles.sensorStat}>
-                  <div style={styles.sensorStatValue}>
-                    {stats.phases?.['Pre-Puff']?.avgAlpha_PID?.toFixed(2)}
-                  </div>
-                  <div style={styles.sensorStatLabel}>Pre-Puff Avg</div>
-                </div>
-              </div>
-            </div>
-
-            <div style={styles.sensorCard}>
-              <div style={styles.sensorTitle}>SPEC Sensor</div>
-              <div style={styles.sensorStats}>
-                <div style={styles.sensorStat}>
-                  <div style={styles.sensorStatValue}>
-                    {stats.phases?.Puff?.avgSPEC?.toFixed(2)}
-                  </div>
-                  <div style={styles.sensorStatLabel}>Puff Avg</div>
-                </div>
-                <div style={styles.sensorStat}>
-                  <div style={styles.sensorStatValue}>
-                    {stats.phases?.['Pre-Puff']?.avgSPEC?.toFixed(2)}
-                  </div>
-                  <div style={styles.sensorStatLabel}>Pre-Puff Avg</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Environmental Conditions */}
-        <div style={styles.card}>
-          <h2 style={styles.cardTitle}>🌡️ Environmental Conditions</h2>
-          <div style={styles.statsGrid}>
-            <div style={styles.statItem}>
-              <div style={styles.statValue}>{stats.phases?.Puff?.avgBME_Temp?.toFixed(1)}°C</div>
-              <div style={styles.statLabel}>Puff Temperature</div>
-            </div>
-            <div style={styles.statItem}>
-              <div style={styles.statValue}>{stats.phases?.Puff?.avgBME_Hum?.toFixed(1)}%</div>
-              <div style={styles.statLabel}>Puff Humidity</div>
-            </div>
-            <div style={styles.statItem}>
-              <div style={styles.statValue}>{stats.phases?.['Pre-Puff']?.avgBME_Temp?.toFixed(1)}°C</div>
-              <div style={styles.statLabel}>Pre-Puff Temperature</div>
-            </div>
-            <div style={styles.statItem}>
-              <div style={styles.statValue}>{stats.phases?.['Pre-Puff']?.avgBME_Hum?.toFixed(1)}%</div>
-              <div style={styles.statLabel}>Pre-Puff Humidity</div>
+        {/* CSV Viewer Tab */}
+        <div style={activeTab === 'csv' ? styles.activeTabContent : styles.tabContent}>
+          <div style={styles.card}>
+            <h2 style={styles.cardTitle}>📊 CSV Data Viewer</h2>
+            <div style={styles.csvViewer}>
+              <table style={styles.csvTable}>
+                <thead>
+                  <tr>
+                    {Object.keys(data[0] || {}).map((header, index) => (
+                      <th key={index} style={styles.csvHeader}>{header}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.slice(0, 50).map((row, rowIndex) => (
+                    <tr key={rowIndex}>
+                      {Object.values(row).map((value, colIndex) => (
+                        <td key={colIndex} style={styles.csvCell}>{value}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {data.length > 50 && (
+                <p style={{ textAlign: 'center', marginTop: '10px', color: 'rgba(255,255,255,0.7)' }}>
+                  Showing first 50 rows of {data.length} total rows
+                </p>
+              )}
             </div>
           </div>
         </div>
