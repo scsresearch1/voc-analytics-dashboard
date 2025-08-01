@@ -268,7 +268,7 @@ export default function Phase2Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedFile, setSelectedFile] = useState('01Aug_Phase2_Ammonia.csv');
-  const [availableFiles, setAvailableFiles] = useState([
+  const [availableFiles] = useState([
     '01Aug_Phase2_Ammonia.csv'
   ]);
   const [activeTab, setActiveTab] = useState('overview');
