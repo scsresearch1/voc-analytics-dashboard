@@ -108,8 +108,8 @@ export default function OptionsPage() {
         navigate('/dashboard');
         break;
       case 'phase2':
-        // Show coming soon message
-        alert('Phase 2 Bio Lab Testing - Coming Soon!');
+        // Navigate to Phase 2 dashboard
+        navigate('/phase2-dashboard');
         break;
       case 'phase3':
         // Show coming soon message
@@ -140,7 +140,7 @@ export default function OptionsPage() {
       title: 'Phase 2 Bio Lab Testing',
       description: 'Advanced bio lab testing dashboard with enhanced analytics features.',
       icon: '🔬',
-      comingSoon: true,
+      comingSoon: false,
     },
     {
       id: 'phase3',
