@@ -81,9 +81,100 @@ const styles = {
     fontSize: '0.9rem',
     color: 'rgba(255,255,255,0.8)',
   },
-  chartContainer: {
-    height: '300px',
+  heaterProfileSection: {
+    background: 'rgba(255,255,255,0.1)',
+    borderRadius: '10px',
+    padding: '20px',
     marginTop: '15px',
+  },
+  heaterProfileGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: '15px',
+    marginTop: '15px',
+  },
+  heaterProfileItem: {
+    background: 'rgba(255,255,255,0.1)',
+    padding: '15px',
+    borderRadius: '10px',
+    textAlign: 'center',
+    border: '1px solid rgba(255,255,255,0.2)',
+  },
+  heaterProfileValue: {
+    fontSize: '1.3rem',
+    fontWeight: 700,
+    color: '#4fc3f7',
+    marginBottom: '10px',
+  },
+  heaterProfileStats: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '8px',
+    marginTop: '10px',
+  },
+  heaterProfileStat: {
+    fontSize: '0.8rem',
+    color: 'rgba(255,255,255,0.8)',
+  },
+  heaterProfileStatValue: {
+    fontSize: '1rem',
+    fontWeight: 600,
+    color: '#4fc3f7',
+  },
+  downloadSection: {
+    background: 'rgba(255,255,255,0.1)',
+    borderRadius: '10px',
+    padding: '20px',
+    marginTop: '15px',
+    textAlign: 'center',
+  },
+  downloadButton: {
+    background: 'linear-gradient(90deg, #00c6ff 0%, #0072ff 100%)',
+    color: '#fff',
+    padding: '12px 24px',
+    borderRadius: '8px',
+    border: 'none',
+    fontSize: '1rem',
+    fontWeight: 600,
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '8px',
+    margin: '10px',
+  },
+  downloadButtonHover: {
+    background: 'linear-gradient(90deg, #0072ff 0%, #00c6ff 100%)',
+    transform: 'scale(1.05)',
+  },
+  dataTable: {
+    width: '100%',
+    borderCollapse: 'collapse',
+    marginTop: '15px',
+    fontSize: '0.9rem',
+  },
+  tableHeader: {
+    background: 'rgba(255,255,255,0.1)',
+    padding: '10px',
+    textAlign: 'left',
+    fontWeight: 600,
+    borderBottom: '1px solid rgba(255,255,255,0.2)',
+  },
+  tableCell: {
+    padding: '8px 10px',
+    borderBottom: '1px solid rgba(255,255,255,0.1)',
+  },
+  loading: {
+    textAlign: 'center',
+    color: '#fff',
+    fontSize: '1.2rem',
+    marginTop: '50px',
+  },
+  error: {
+    textAlign: 'center',
+    color: '#ff6b6b',
+    fontSize: '1.2rem',
+    marginTop: '50px',
   },
   phaseStats: {
     display: 'grid',
@@ -102,63 +193,6 @@ const styles = {
     fontWeight: 600,
     marginBottom: '10px',
     color: '#4fc3f7',
-  },
-  correlationMatrix: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: '5px',
-    marginTop: '15px',
-  },
-  correlationCell: {
-    padding: '8px',
-    textAlign: 'center',
-    borderRadius: '5px',
-    fontSize: '0.8rem',
-    fontWeight: 600,
-  },
-  loading: {
-    textAlign: 'center',
-    color: '#fff',
-    fontSize: '1.2rem',
-    marginTop: '50px',
-  },
-  error: {
-    textAlign: 'center',
-    color: '#ff6b6b',
-    fontSize: '1.2rem',
-    marginTop: '50px',
-  },
-  heaterProfileSection: {
-    background: 'rgba(255,255,255,0.1)',
-    borderRadius: '10px',
-    padding: '20px',
-    marginTop: '15px',
-  },
-  heaterProfileGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-    gap: '10px',
-    marginTop: '15px',
-  },
-  heaterProfileItem: {
-    background: 'rgba(255,255,255,0.1)',
-    padding: '10px',
-    borderRadius: '8px',
-    textAlign: 'center',
-    border: '1px solid rgba(255,255,255,0.2)',
-  },
-  heaterProfileValue: {
-    fontSize: '1.2rem',
-    fontWeight: 700,
-    color: '#4fc3f7',
-  },
-  heaterProfileCount: {
-    fontSize: '0.8rem',
-    color: 'rgba(255,255,255,0.7)',
-  },
-  bmeHeaterResChart: {
-    height: '250px',
-    marginTop: '15px',
   },
   sensorComparison: {
     display: 'grid',
@@ -203,6 +237,7 @@ const styles = {
 export default function Phase2Dashboard() {
   const navigate = useNavigate();
   const [hovered, setHovered] = useState(false);
+  const [downloadHovered, setDownloadHovered] = useState(false);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -272,13 +307,44 @@ export default function Phase2Dashboard() {
       }
     });
 
-    // Heater Profile analysis
-    const heaterProfileCounts = {};
+    // Detailed Heater Profile analysis with BME stats
+    const heaterProfileStats = {};
     data.forEach(row => {
       const profile = row.Heater_Profile;
-      heaterProfileCounts[profile] = (heaterProfileCounts[profile] || 0) + 1;
+      if (!heaterProfileStats[profile]) {
+        heaterProfileStats[profile] = {
+          count: 0,
+          bmeValues: [],
+          mq136Values: [],
+          mq138Values: [],
+          alphaPIDValues: [],
+          specValues: [],
+          sgp40Values: []
+        };
+      }
+      heaterProfileStats[profile].count++;
+      heaterProfileStats[profile].bmeValues.push(parseFloat(row.BME_HeaterRes || 0));
+      heaterProfileStats[profile].mq136Values.push(parseFloat(row.MQ136_RAW || 0));
+      heaterProfileStats[profile].mq138Values.push(parseFloat(row.MQ138_RAW || 0));
+      heaterProfileStats[profile].alphaPIDValues.push(parseFloat(row.Alpha_PID || 0));
+      heaterProfileStats[profile].specValues.push(parseFloat(row.SPEC || 0));
+      heaterProfileStats[profile].sgp40Values.push(parseFloat(row.SGP40_VOC || 0));
     });
-    stats.heaterProfiles = heaterProfileCounts;
+
+    // Calculate min/max for each heater profile
+    Object.keys(heaterProfileStats).forEach(profile => {
+      const stats = heaterProfileStats[profile];
+      stats.bmeMin = Math.min(...stats.bmeValues);
+      stats.bmeMax = Math.max(...stats.bmeValues);
+      stats.bmeAvg = stats.bmeValues.reduce((sum, val) => sum + val, 0) / stats.bmeValues.length;
+      stats.mq136Avg = stats.mq136Values.reduce((sum, val) => sum + val, 0) / stats.mq136Values.length;
+      stats.mq138Avg = stats.mq138Values.reduce((sum, val) => sum + val, 0) / stats.mq138Values.length;
+      stats.alphaPIDAvg = stats.alphaPIDValues.reduce((sum, val) => sum + val, 0) / stats.alphaPIDValues.length;
+      stats.specAvg = stats.specValues.reduce((sum, val) => sum + val, 0) / stats.specValues.length;
+      stats.sgp40Avg = stats.sgp40Values.reduce((sum, val) => sum + val, 0) / stats.sgp40Values.length;
+    });
+
+    stats.heaterProfiles = heaterProfileStats;
 
     // BME_HeaterRes analysis
     const bmeHeaterResValues = data.map(row => parseFloat(row.BME_HeaterRes || 0));
@@ -290,6 +356,27 @@ export default function Phase2Dashboard() {
     };
 
     return stats;
+  };
+
+  const handleDownloadCSV = () => {
+    if (!data) return;
+    
+    // Convert data back to CSV format
+    const headers = Object.keys(data[0]);
+    const csvContent = [
+      headers.join(','),
+      ...data.map(row => headers.map(header => row[header]).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Phase2_Ammonia_Data.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   };
 
   const handleBack = () => {
@@ -351,18 +438,53 @@ export default function Phase2Dashboard() {
           </div>
         </div>
 
-        {/* Heater Profile Analysis */}
+        {/* Detailed Heater Profile Analysis */}
         <div style={styles.card}>
-          <h2 style={styles.cardTitle}>🔥 Heater Profile Analysis</h2>
+          <h2 style={styles.cardTitle}>🔥 Detailed Heater Profile Analysis</h2>
           <div style={styles.heaterProfileSection}>
             <div style={styles.heaterProfileGrid}>
-              {Object.entries(stats.heaterProfiles || {}).map(([profile, count]) => (
+              {Object.entries(stats.heaterProfiles || {}).map(([profile, profileStats]) => (
                 <div key={profile} style={styles.heaterProfileItem}>
-                  <div style={styles.heaterProfileValue}>{profile}</div>
-                  <div style={styles.heaterProfileCount}>{count} records</div>
+                  <div style={styles.heaterProfileValue}>Profile {profile}</div>
+                  <div style={styles.heaterProfileStats}>
+                    <div style={styles.heaterProfileStat}>
+                      <div style={styles.heaterProfileStatValue}>{profileStats.count}</div>
+                      <div>Records</div>
+                    </div>
+                    <div style={styles.heaterProfileStat}>
+                      <div style={styles.heaterProfileStatValue}>{profileStats.bmeMin?.toLocaleString()}</div>
+                      <div>BME Min</div>
+                    </div>
+                    <div style={styles.heaterProfileStat}>
+                      <div style={styles.heaterProfileStatValue}>{profileStats.bmeMax?.toLocaleString()}</div>
+                      <div>BME Max</div>
+                    </div>
+                    <div style={styles.heaterProfileStat}>
+                      <div style={styles.heaterProfileStatValue}>{profileStats.bmeAvg?.toFixed(0)}</div>
+                      <div>BME Avg</div>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* CSV Download Section */}
+        <div style={styles.card}>
+          <h2 style={styles.cardTitle}>📥 Data Export</h2>
+          <div style={styles.downloadSection}>
+            <p style={{ marginBottom: '15px', color: 'rgba(255,255,255,0.8)' }}>
+              Download the complete Phase 2 Ammonia dataset for further analysis
+            </p>
+            <button
+              style={downloadHovered ? { ...styles.downloadButton, ...styles.downloadButtonHover } : styles.downloadButton}
+              onClick={handleDownloadCSV}
+              onMouseEnter={() => setDownloadHovered(true)}
+              onMouseLeave={() => setDownloadHovered(false)}
+            >
+              📄 Download Phase 2 CSV
+            </button>
           </div>
         </div>
 
