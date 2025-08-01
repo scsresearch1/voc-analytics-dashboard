@@ -445,29 +445,7 @@ export default function Phase2Dashboard() {
     };
   };
 
-  const generateHistogramData = (values, sensorName) => {
-    if (!values || values.length === 0) return null;
-    
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-    const binCount = Math.min(20, Math.ceil(Math.sqrt(values.length)));
-    const binSize = (max - min) / binCount;
-    
-    const bins = Array.from({ length: binCount }, () => 0);
-    const binEdges = Array.from({ length: binCount + 1 }, (_, i) => min + i * binSize);
-    
-    values.forEach(value => {
-      const binIndex = Math.min(Math.floor((value - min) / binSize), binCount - 1);
-      bins[binIndex]++;
-    });
-    
-    return {
-      x: binEdges.slice(0, -1).map((edge, i) => `${edge.toFixed(2)}-${binEdges[i + 1].toFixed(2)}`),
-      y: bins,
-      binEdges: binEdges,
-      bins: bins
-    };
-  };
+
 
   const generateCorrelationMatrix = (data) => {
     const sensors = ['BME_HeaterRes', 'MQ136_RAW', 'MQ138_RAW', 'Alpha_PID', 'SPEC', 'SGP40_VOC'];
