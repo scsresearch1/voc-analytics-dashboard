@@ -545,18 +545,9 @@ export default function Phase2Dashboard() {
   const stats = calculateDetailedStats(data);
   const bmeValues = data.map(row => parseFloat(row.BME_HeaterRes || 0)).filter(v => !isNaN(v));
   const mq136Values = data.map(row => parseFloat(row.MQ136_RAW || 0)).filter(v => !isNaN(v));
-  const mq138Values = data.map(row => parseFloat(row.MQ138_RAW || 0)).filter(v => !isNaN(v));
-  const alphaPIDValues = data.map(row => parseFloat(row.Alpha_PID || 0)).filter(v => !isNaN(v));
-  const specValues = data.map(row => parseFloat(row.SPEC || 0)).filter(v => !isNaN(v));
-  const sgp40Values = data.map(row => parseFloat(row.SGP40_VOC || 0)).filter(v => !isNaN(v));
 
   const bmeBellCurve = generateBellCurveData(bmeValues, 'BME_HeaterRes');
   const mq136BellCurve = generateBellCurveData(mq136Values, 'MQ136_RAW');
-  const mq138BellCurve = generateBellCurveData(mq138Values, 'MQ138_RAW');
-  
-  const bmeHistogram = generateHistogramData(bmeValues, 'BME_HeaterRes');
-  const mq136Histogram = generateHistogramData(mq136Values, 'MQ136_RAW');
-  const mq138Histogram = generateHistogramData(mq138Values, 'MQ138_RAW');
   
   const correlationData = generateCorrelationMatrix(data);
 
