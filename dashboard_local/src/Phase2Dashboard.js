@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Plot from 'react-plotly.js';
 
 const styles = {
   container: {
@@ -259,6 +260,18 @@ const styles = {
   activeTabContent: {
     display: 'block',
   },
+  chartContainer: {
+    background: 'rgba(255,255,255,0.05)',
+    borderRadius: '10px',
+    padding: '20px',
+    marginBottom: '20px',
+  },
+  chartGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))',
+    gap: '20px',
+    marginTop: '15px',
+  },
 };
 
 export default function Phase2Dashboard() {
@@ -408,6 +421,87 @@ export default function Phase2Dashboard() {
     return stats;
   };
 
+  const generateBellCurveData = (values, sensorName) => {
+    if (!values || values.length === 0) return null;
+    
+    const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
+    const std = Math.sqrt(values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length);
+    
+    const x = Array.from({ length: 100 }, (_, i) => {
+      const xVal = mean - 3 * std + (6 * std * i) / 99;
+      return xVal;
+    });
+    
+    const y = x.map(xVal => {
+      return (1 / (std * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((xVal - mean) / std, 2));
+    });
+    
+    return {
+      x: x,
+      y: y,
+      mean: mean,
+      std: std,
+      actualValues: values
+    };
+  };
+
+  const generateHistogramData = (values, sensorName) => {
+    if (!values || values.length === 0) return null;
+    
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const binCount = Math.min(20, Math.ceil(Math.sqrt(values.length)));
+    const binSize = (max - min) / binCount;
+    
+    const bins = Array.from({ length: binCount }, () => 0);
+    const binEdges = Array.from({ length: binCount + 1 }, (_, i) => min + i * binSize);
+    
+    values.forEach(value => {
+      const binIndex = Math.min(Math.floor((value - min) / binSize), binCount - 1);
+      bins[binIndex]++;
+    });
+    
+    return {
+      x: binEdges.slice(0, -1).map((edge, i) => `${edge.toFixed(2)}-${binEdges[i + 1].toFixed(2)}`),
+      y: bins,
+      binEdges: binEdges,
+      bins: bins
+    };
+  };
+
+  const generateCorrelationMatrix = (data) => {
+    const sensors = ['BME_HeaterRes', 'MQ136_RAW', 'MQ138_RAW', 'Alpha_PID', 'SPEC', 'SGP40_VOC'];
+    const sensorData = {};
+    
+    sensors.forEach(sensor => {
+      sensorData[sensor] = data.map(row => parseFloat(row[sensor] || 0)).filter(v => !isNaN(v));
+    });
+    
+    const correlationMatrix = sensors.map(sensor1 => 
+      sensors.map(sensor2 => {
+        const x = sensorData[sensor1];
+        const y = sensorData[sensor2];
+        
+        if (x.length === 0 || y.length === 0) return 0;
+        
+        const meanX = x.reduce((sum, val) => sum + val, 0) / x.length;
+        const meanY = y.reduce((sum, val) => sum + val, 0) / y.length;
+        
+        const numerator = x.reduce((sum, val, i) => sum + (val - meanX) * (y[i] - meanY), 0);
+        const denominatorX = Math.sqrt(x.reduce((sum, val) => sum + Math.pow(val - meanX, 2), 0));
+        const denominatorY = Math.sqrt(y.reduce((sum, val) => sum + Math.pow(val - meanY, 2), 0));
+        
+        return denominatorX * denominatorY === 0 ? 0 : numerator / (denominatorX * denominatorY);
+      })
+    );
+    
+    return {
+      z: correlationMatrix,
+      x: sensors,
+      y: sensors
+    };
+  };
+
   const handleDownloadCSV = () => {
     if (!data) return;
     
@@ -449,6 +543,22 @@ export default function Phase2Dashboard() {
   }
 
   const stats = calculateDetailedStats(data);
+  const bmeValues = data.map(row => parseFloat(row.BME_HeaterRes || 0)).filter(v => !isNaN(v));
+  const mq136Values = data.map(row => parseFloat(row.MQ136_RAW || 0)).filter(v => !isNaN(v));
+  const mq138Values = data.map(row => parseFloat(row.MQ138_RAW || 0)).filter(v => !isNaN(v));
+  const alphaPIDValues = data.map(row => parseFloat(row.Alpha_PID || 0)).filter(v => !isNaN(v));
+  const specValues = data.map(row => parseFloat(row.SPEC || 0)).filter(v => !isNaN(v));
+  const sgp40Values = data.map(row => parseFloat(row.SGP40_VOC || 0)).filter(v => !isNaN(v));
+
+  const bmeBellCurve = generateBellCurveData(bmeValues, 'BME_HeaterRes');
+  const mq136BellCurve = generateBellCurveData(mq136Values, 'MQ136_RAW');
+  const mq138BellCurve = generateBellCurveData(mq138Values, 'MQ138_RAW');
+  
+  const bmeHistogram = generateHistogramData(bmeValues, 'BME_HeaterRes');
+  const mq136Histogram = generateHistogramData(mq136Values, 'MQ136_RAW');
+  const mq138Histogram = generateHistogramData(mq138Values, 'MQ138_RAW');
+  
+  const correlationData = generateCorrelationMatrix(data);
 
   return (
     <div style={styles.container}>
@@ -523,6 +633,12 @@ export default function Phase2Dashboard() {
             onClick={() => setActiveTab('phases')}
           >
             ⏱️ Phase Analysis
+          </button>
+          <button
+            style={activeTab === 'charts' ? { ...styles.tab, ...styles.activeTab } : styles.tab}
+            onClick={() => setActiveTab('charts')}
+          >
+            📈 Charts & Graphs
           </button>
           <button
             style={activeTab === 'csv' ? { ...styles.tab, ...styles.activeTab } : styles.tab}
@@ -661,6 +777,197 @@ export default function Phase2Dashboard() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Charts & Graphs Tab */}
+        <div style={activeTab === 'charts' ? styles.activeTabContent : styles.tabContent}>
+          <div style={styles.card}>
+            <h2 style={styles.cardTitle}>📈 Advanced Analytics & Visualizations</h2>
+            
+            {/* Bell Curves */}
+            <div style={styles.chartContainer}>
+              <h3 style={{ color: '#fff', marginBottom: '15px' }}>🔔 Bell Curve Distributions</h3>
+              <div style={styles.chartGrid}>
+                {bmeBellCurve && (
+                  <Plot
+                    data={[
+                      {
+                        x: bmeBellCurve.x,
+                        y: bmeBellCurve.y,
+                        type: 'scatter',
+                        mode: 'lines',
+                        name: 'Theoretical Normal',
+                        line: { color: '#4fc3f7', width: 3 },
+                        fill: 'tonexty',
+                        fillcolor: 'rgba(79, 195, 247, 0.3)'
+                      },
+                      {
+                        x: bmeBellCurve.actualValues,
+                        type: 'histogram',
+                        name: 'Actual Data',
+                        opacity: 0.7,
+                        marker: { color: '#ff6b6b' },
+                        nbinsx: 30
+                      }
+                    ]}
+                    layout={{
+                      title: 'BME Heater Resistance Distribution',
+                      paper_bgcolor: 'rgba(0,0,0,0)',
+                      plot_bgcolor: 'rgba(0,0,0,0)',
+                      font: { color: '#fff' },
+                      xaxis: { title: 'BME Heater Resistance', gridcolor: 'rgba(255,255,255,0.1)' },
+                      yaxis: { title: 'Frequency', gridcolor: 'rgba(255,255,255,0.1)' },
+                      showlegend: true,
+                      legend: { font: { color: '#fff' } }
+                    }}
+                    style={{ width: '100%', height: '400px' }}
+                    config={{ displayModeBar: false }}
+                  />
+                )}
+                
+                {mq136BellCurve && (
+                  <Plot
+                    data={[
+                      {
+                        x: mq136BellCurve.x,
+                        y: mq136BellCurve.y,
+                        type: 'scatter',
+                        mode: 'lines',
+                        name: 'Theoretical Normal',
+                        line: { color: '#4fc3f7', width: 3 },
+                        fill: 'tonexty',
+                        fillcolor: 'rgba(79, 195, 247, 0.3)'
+                      },
+                      {
+                        x: mq136BellCurve.actualValues,
+                        type: 'histogram',
+                        name: 'Actual Data',
+                        opacity: 0.7,
+                        marker: { color: '#ff6b6b' },
+                        nbinsx: 30
+                      }
+                    ]}
+                    layout={{
+                      title: 'MQ136 Sensor Distribution',
+                      paper_bgcolor: 'rgba(0,0,0,0)',
+                      plot_bgcolor: 'rgba(0,0,0,0)',
+                      font: { color: '#fff' },
+                      xaxis: { title: 'MQ136 Raw Value', gridcolor: 'rgba(255,255,255,0.1)' },
+                      yaxis: { title: 'Frequency', gridcolor: 'rgba(255,255,255,0.1)' },
+                      showlegend: true,
+                      legend: { font: { color: '#fff' } }
+                    }}
+                    style={{ width: '100%', height: '400px' }}
+                    config={{ displayModeBar: false }}
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Box Plots */}
+            <div style={styles.chartContainer}>
+              <h3 style={{ color: '#fff', marginBottom: '15px' }}>📦 Box Plots by Phase</h3>
+              <Plot
+                data={[
+                  {
+                    y: data.filter(row => row.Phase === 'Pre-Puff').map(row => parseFloat(row.BME_HeaterRes || 0)).filter(v => !isNaN(v)),
+                    type: 'box',
+                    name: 'Pre-Puff',
+                    marker: { color: '#4fc3f7' }
+                  },
+                  {
+                    y: data.filter(row => row.Phase === 'Puff').map(row => parseFloat(row.BME_HeaterRes || 0)).filter(v => !isNaN(v)),
+                    type: 'box',
+                    name: 'Puff',
+                    marker: { color: '#ff6b6b' }
+                  },
+                  {
+                    y: data.filter(row => row.Phase === 'Post-Puff').map(row => parseFloat(row.BME_HeaterRes || 0)).filter(v => !isNaN(v)),
+                    type: 'box',
+                    name: 'Post-Puff',
+                    marker: { color: '#4caf50' }
+                  }
+                ]}
+                layout={{
+                  title: 'BME Heater Resistance by Phase',
+                  paper_bgcolor: 'rgba(0,0,0,0)',
+                  plot_bgcolor: 'rgba(0,0,0,0)',
+                  font: { color: '#fff' },
+                  yaxis: { title: 'BME Heater Resistance', gridcolor: 'rgba(255,255,255,0.1)' },
+                  showlegend: true,
+                  legend: { font: { color: '#fff' } }
+                }}
+                style={{ width: '100%', height: '400px' }}
+                config={{ displayModeBar: false }}
+              />
+            </div>
+
+            {/* Correlation Matrix */}
+            <div style={styles.chartContainer}>
+              <h3 style={{ color: '#fff', marginBottom: '15px' }}>🔗 Sensor Correlation Matrix</h3>
+              <Plot
+                data={[
+                  {
+                    z: correlationData.z,
+                    x: correlationData.x,
+                    y: correlationData.y,
+                    type: 'heatmap',
+                    colorscale: 'RdBu',
+                    zmid: 0
+                  }
+                ]}
+                layout={{
+                  title: 'Sensor Correlation Matrix',
+                  paper_bgcolor: 'rgba(0,0,0,0)',
+                  plot_bgcolor: 'rgba(0,0,0,0)',
+                  font: { color: '#fff' },
+                  xaxis: { title: 'Sensors', gridcolor: 'rgba(255,255,255,0.1)' },
+                  yaxis: { title: 'Sensors', gridcolor: 'rgba(255,255,255,0.1)' }
+                }}
+                style={{ width: '100%', height: '400px' }}
+                config={{ displayModeBar: false }}
+              />
+            </div>
+
+            {/* Time Series */}
+            <div style={styles.chartContainer}>
+              <h3 style={{ color: '#fff', marginBottom: '15px' }}>⏰ Time Series Analysis</h3>
+              <Plot
+                data={[
+                  {
+                    x: Array.from({ length: data.length }, (_, i) => i),
+                    y: data.map(row => parseFloat(row.BME_HeaterRes || 0)),
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'BME Heater Resistance',
+                    line: { color: '#4fc3f7', width: 2 }
+                  },
+                  {
+                    x: Array.from({ length: data.length }, (_, i) => i),
+                    y: data.map(row => parseFloat(row.MQ136_RAW || 0)),
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'MQ136 Raw',
+                    line: { color: '#ff6b6b', width: 2 },
+                    yaxis: 'y2'
+                  }
+                ]}
+                layout={{
+                  title: 'Sensor Readings Over Time',
+                  paper_bgcolor: 'rgba(0,0,0,0)',
+                  plot_bgcolor: 'rgba(0,0,0,0)',
+                  font: { color: '#fff' },
+                  xaxis: { title: 'Time Index', gridcolor: 'rgba(255,255,255,0.1)' },
+                  yaxis: { title: 'BME Heater Resistance', gridcolor: 'rgba(255,255,255,0.1)' },
+                  yaxis2: { title: 'MQ136 Raw', overlaying: 'y', side: 'right', gridcolor: 'rgba(255,255,255,0.1)' },
+                  showlegend: true,
+                  legend: { font: { color: '#fff' } }
+                }}
+                style={{ width: '100%', height: '400px' }}
+                config={{ displayModeBar: false }}
+              />
             </div>
           </div>
         </div>
