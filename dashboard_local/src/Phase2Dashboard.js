@@ -46,10 +46,13 @@ const styles = {
     fontSize: '1rem',
     fontWeight: 600,
     transition: 'all 0.3s ease',
+    zIndex: 1000,
+    boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
   },
   backButtonHover: {
     background: 'rgba(255,255,255,0.3)',
     transform: 'scale(1.05)',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
   },
   sidebarTitle: {
     color: '#fff',
@@ -57,16 +60,26 @@ const styles = {
     fontWeight: 700,
     marginBottom: '15px',
   },
-  select: {
-    width: '100%',
-    padding: '10px',
-    borderRadius: '8px',
-    border: '1px solid rgba(255,255,255,0.3)',
-    background: 'rgba(255,255,255,0.1)',
-    color: '#fff',
-    fontSize: '14px',
-    marginBottom: '15px',
-  },
+     select: {
+     width: '100%',
+     padding: '10px',
+     borderRadius: '8px',
+     border: '1px solid rgba(255,255,255,0.3)',
+     background: 'rgba(255,255,255,0.1)',
+     color: '#fff',
+     fontSize: '14px',
+     marginBottom: '15px',
+     cursor: 'pointer',
+   },
+   selectOption: {
+     background: '#2a5298',
+     color: '#fff',
+     padding: '8px',
+   },
+   fileSelector: {
+     marginBottom: '20px',
+     position: 'relative',
+   },
   button: {
     padding: '12px 16px',
     borderRadius: '8px',
@@ -266,12 +279,71 @@ const styles = {
     padding: '20px',
     marginBottom: '20px',
   },
-  chartGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))',
-    gap: '20px',
-    marginTop: '15px',
-  },
+     chartGrid: {
+     display: 'grid',
+     gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))',
+     gap: '20px',
+     marginTop: '15px',
+   },
+   sensorStatsGrid: {
+     display: 'grid',
+     gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+     gap: '20px',
+     marginTop: '15px',
+   },
+   sensorCard: {
+     background: 'rgba(255,255,255,0.1)',
+     padding: '20px',
+     borderRadius: '12px',
+     border: '1px solid rgba(255,255,255,0.2)',
+   },
+   sensorCardTitle: {
+     fontSize: '1.2rem',
+     fontWeight: 700,
+     color: '#4fc3f7',
+     marginBottom: '15px',
+     textAlign: 'center',
+   },
+   sensorStatsRow: {
+     display: 'grid',
+     gridTemplateColumns: 'repeat(3, 1fr)',
+     gap: '15px',
+   },
+   sensorStatItem: {
+     textAlign: 'center',
+     padding: '10px',
+     background: 'rgba(255,255,255,0.05)',
+     borderRadius: '8px',
+   },
+   sensorStatLabel: {
+     fontSize: '0.8rem',
+     color: 'rgba(255,255,255,0.7)',
+     marginBottom: '5px',
+   },
+   sensorStatValue: {
+     fontSize: '1.1rem',
+     fontWeight: 600,
+     color: '#4fc3f7',
+   },
+   phaseSelector: {
+     marginBottom: '20px',
+   },
+   phaseSelectorLabel: {
+     color: '#fff',
+     fontSize: '1rem',
+     fontWeight: 600,
+     marginBottom: '8px',
+     display: 'block',
+   },
+   phaseSelect: {
+     width: '200px',
+     padding: '10px',
+     borderRadius: '8px',
+     border: '1px solid rgba(255,255,255,0.3)',
+     background: 'rgba(255,255,255,0.1)',
+     color: '#fff',
+     fontSize: '14px',
+   },
 };
 
 export default function Phase2Dashboard() {
@@ -286,6 +358,7 @@ export default function Phase2Dashboard() {
     '04Aug_Phase2_p_Cresol.csv'
   ]);
   const [activeTab, setActiveTab] = useState('overview');
+  const [selectedPhase, setSelectedPhase] = useState('all');
 
   useEffect(() => {
     loadData();
@@ -446,6 +519,28 @@ export default function Phase2Dashboard() {
     };
   };
 
+  const generatePhaseBellCurves = (sensorName) => {
+    const phases = ['Pre-Puff', 'Puff', 'Post-Puff'];
+    const curves = [];
+    
+    phases.forEach(phase => {
+      const phaseData = data.filter(row => row.Phase === phase);
+      const values = phaseData.map(row => parseFloat(row[sensorName] || 0)).filter(v => !isNaN(v));
+      
+      if (values.length > 0) {
+        const curve = generateBellCurveData(values, sensorName);
+        if (curve) {
+          curves.push({
+            ...curve,
+            phase: phase
+          });
+        }
+      }
+    });
+    
+    return curves;
+  };
+
 
 
   const generateCorrelationMatrix = (data) => {
@@ -545,18 +640,19 @@ export default function Phase2Dashboard() {
       <div style={styles.sidebar}>
         <h2 style={styles.sidebarTitle}>Phase 2 Analytics</h2>
         
-        <div style={styles.fileSelector}>
-          <label style={styles.fileSelectorLabel}>Select VOC File:</label>
-          <select 
-            style={styles.select} 
-            value={selectedFile} 
-            onChange={(e) => setSelectedFile(e.target.value)}
-          >
-            {availableFiles.map(file => (
-              <option key={file} value={file}>{file}</option>
-            ))}
-          </select>
-        </div>
+                 <div style={styles.fileSelector}>
+           <label style={styles.fileSelectorLabel}>Select VOC File:</label>
+           <select 
+             style={styles.select} 
+             value={selectedFile} 
+             onChange={(e) => setSelectedFile(e.target.value)}
+             size="1"
+           >
+             {availableFiles.map(file => (
+               <option key={file} value={file}>{file}</option>
+             ))}
+           </select>
+         </div>
 
         <button 
           style={styles.button}
@@ -618,30 +714,63 @@ export default function Phase2Dashboard() {
           </button>
         </div>
 
-        {/* Overview Tab */}
-        <div style={activeTab === 'overview' ? styles.activeTabContent : styles.tabContent}>
-          <div style={styles.card}>
-            <h2 style={styles.cardTitle}>📊 Overview Statistics</h2>
-            <div style={styles.statsGrid}>
-              <div style={styles.statItem}>
-                <div style={styles.statValue}>{stats.totalRecords?.toLocaleString()}</div>
-                <div style={styles.statLabel}>Total Records</div>
-              </div>
-              <div style={styles.statItem}>
-                <div style={styles.statValue}>{stats.uniqueHeaterProfiles}</div>
-                <div style={styles.statLabel}>Unique Heater Profiles</div>
-              </div>
-              <div style={styles.statItem}>
-                <div style={styles.statValue}>{stats.avgBMEHeaterRes?.toFixed(0)}</div>
-                <div style={styles.statLabel}>Avg BME Heater Res</div>
-              </div>
-              <div style={styles.statItem}>
-                <div style={styles.statValue}>Ammonia</div>
-                <div style={styles.statLabel}>VOC Tested</div>
-              </div>
-            </div>
-          </div>
-        </div>
+                 {/* Overview Tab */}
+         <div style={activeTab === 'overview' ? styles.activeTabContent : styles.tabContent}>
+           <div style={styles.card}>
+             <h2 style={styles.cardTitle}>📊 Overview Statistics</h2>
+             <div style={styles.statsGrid}>
+               <div style={styles.statItem}>
+                 <div style={styles.statValue}>{stats.totalRecords?.toLocaleString()}</div>
+                 <div style={styles.statLabel}>Total Records</div>
+               </div>
+               <div style={styles.statItem}>
+                 <div style={styles.statValue}>{stats.uniqueHeaterProfiles}</div>
+                 <div style={styles.statLabel}>Unique Heater Profiles</div>
+               </div>
+               <div style={styles.statItem}>
+                 <div style={styles.statValue}>{stats.avgBMEHeaterRes?.toFixed(0)}</div>
+                 <div style={styles.statLabel}>Avg BME Heater Res</div>
+               </div>
+               <div style={styles.statItem}>
+                 <div style={styles.statValue}>{data?.[0]?.VOC || 'Unknown'}</div>
+                 <div style={styles.statLabel}>VOC Tested</div>
+               </div>
+             </div>
+           </div>
+
+           {/* Sensor Statistics Section */}
+           <div style={styles.card}>
+             <h2 style={styles.cardTitle}>📊 All Sensor Statistics (Max/Min/Avg)</h2>
+             <div style={styles.sensorStatsGrid}>
+               {['BME_HeaterRes', 'MQ136_RAW', 'MQ138_RAW', 'Alpha_PID', 'SPEC', 'SGP40_VOC'].map(sensor => {
+                 const values = data.map(row => parseFloat(row[sensor] || 0)).filter(v => !isNaN(v));
+                 const min = values.length > 0 ? Math.min(...values) : 0;
+                 const max = values.length > 0 ? Math.max(...values) : 0;
+                 const avg = values.length > 0 ? values.reduce((sum, val) => sum + val, 0) / values.length : 0;
+                 
+                 return (
+                   <div key={sensor} style={styles.sensorCard}>
+                     <h3 style={styles.sensorCardTitle}>{sensor}</h3>
+                     <div style={styles.sensorStatsRow}>
+                       <div style={styles.sensorStatItem}>
+                         <div style={styles.sensorStatLabel}>Max</div>
+                         <div style={styles.sensorStatValue}>{max.toFixed(2)}</div>
+                       </div>
+                       <div style={styles.sensorStatItem}>
+                         <div style={styles.sensorStatLabel}>Min</div>
+                         <div style={styles.sensorStatValue}>{min.toFixed(2)}</div>
+                       </div>
+                       <div style={styles.sensorStatItem}>
+                         <div style={styles.sensorStatLabel}>Avg</div>
+                         <div style={styles.sensorStatValue}>{avg.toFixed(2)}</div>
+                       </div>
+                     </div>
+                   </div>
+                 );
+               })}
+             </div>
+           </div>
+         </div>
 
         {/* Heater Profiles Tab */}
         <div style={activeTab === 'profiles' ? styles.activeTabContent : styles.tabContent}>
@@ -751,196 +880,268 @@ export default function Phase2Dashboard() {
           </div>
         </div>
 
-        {/* Charts & Graphs Tab */}
-        <div style={activeTab === 'charts' ? styles.activeTabContent : styles.tabContent}>
-          <div style={styles.card}>
-            <h2 style={styles.cardTitle}>📈 Advanced Analytics & Visualizations</h2>
-            
-            {/* Bell Curves */}
-            <div style={styles.chartContainer}>
-              <h3 style={{ color: '#fff', marginBottom: '15px' }}>🔔 Bell Curve Distributions</h3>
-              <div style={styles.chartGrid}>
-                {bmeBellCurve && (
-                  <Plot
-                    data={[
-                      {
-                        x: bmeBellCurve.x,
-                        y: bmeBellCurve.y,
-                        type: 'scatter',
-                        mode: 'lines',
-                        name: 'Theoretical Normal',
-                        line: { color: '#4fc3f7', width: 3 },
-                        fill: 'tonexty',
-                        fillcolor: 'rgba(79, 195, 247, 0.3)'
-                      },
-                      {
-                        x: bmeBellCurve.actualValues,
-                        type: 'histogram',
-                        name: 'Actual Data',
-                        opacity: 0.7,
-                        marker: { color: '#ff6b6b' },
-                        nbinsx: 30
-                      }
-                    ]}
-                    layout={{
-                      title: 'BME Heater Resistance Distribution',
-                      paper_bgcolor: 'rgba(0,0,0,0)',
-                      plot_bgcolor: 'rgba(0,0,0,0)',
-                      font: { color: '#fff' },
-                      xaxis: { title: 'BME Heater Resistance', gridcolor: 'rgba(255,255,255,0.1)' },
-                      yaxis: { title: 'Frequency', gridcolor: 'rgba(255,255,255,0.1)' },
-                      showlegend: true,
-                      legend: { font: { color: '#fff' } }
-                    }}
-                    style={{ width: '100%', height: '400px' }}
-                    config={{ displayModeBar: false }}
-                  />
-                )}
-                
-                {mq136BellCurve && (
-                  <Plot
-                    data={[
-                      {
-                        x: mq136BellCurve.x,
-                        y: mq136BellCurve.y,
-                        type: 'scatter',
-                        mode: 'lines',
-                        name: 'Theoretical Normal',
-                        line: { color: '#4fc3f7', width: 3 },
-                        fill: 'tonexty',
-                        fillcolor: 'rgba(79, 195, 247, 0.3)'
-                      },
-                      {
-                        x: mq136BellCurve.actualValues,
-                        type: 'histogram',
-                        name: 'Actual Data',
-                        opacity: 0.7,
-                        marker: { color: '#ff6b6b' },
-                        nbinsx: 30
-                      }
-                    ]}
-                    layout={{
-                      title: 'MQ136 Sensor Distribution',
-                      paper_bgcolor: 'rgba(0,0,0,0)',
-                      plot_bgcolor: 'rgba(0,0,0,0)',
-                      font: { color: '#fff' },
-                      xaxis: { title: 'MQ136 Raw Value', gridcolor: 'rgba(255,255,255,0.1)' },
-                      yaxis: { title: 'Frequency', gridcolor: 'rgba(255,255,255,0.1)' },
-                      showlegend: true,
-                      legend: { font: { color: '#fff' } }
-                    }}
-                    style={{ width: '100%', height: '400px' }}
-                    config={{ displayModeBar: false }}
-                  />
-                )}
-              </div>
-            </div>
+                 {/* Charts & Graphs Tab */}
+         <div style={activeTab === 'charts' ? styles.activeTabContent : styles.tabContent}>
+           <div style={styles.card}>
+             <h2 style={styles.cardTitle}>📈 Phase-Wise Advanced Analytics & Visualizations</h2>
+             
+             {/* Phase Selection */}
+             <div style={styles.phaseSelector}>
+               <label style={styles.phaseSelectorLabel}>Select Phase:</label>
+               <select 
+                 style={styles.phaseSelect} 
+                 value={selectedPhase} 
+                 onChange={(e) => setSelectedPhase(e.target.value)}
+               >
+                 <option value="all">All Phases</option>
+                 <option value="Pre-Puff">Pre-Puff</option>
+                 <option value="Puff">Puff</option>
+                 <option value="Post-Puff">Post-Puff</option>
+               </select>
+             </div>
 
-            {/* Box Plots */}
-            <div style={styles.chartContainer}>
-              <h3 style={{ color: '#fff', marginBottom: '15px' }}>📦 Box Plots by Phase</h3>
-              <Plot
-                data={[
-                  {
-                    y: data.filter(row => row.Phase === 'Pre-Puff').map(row => parseFloat(row.BME_HeaterRes || 0)).filter(v => !isNaN(v)),
-                    type: 'box',
-                    name: 'Pre-Puff',
-                    marker: { color: '#4fc3f7' }
-                  },
-                  {
-                    y: data.filter(row => row.Phase === 'Puff').map(row => parseFloat(row.BME_HeaterRes || 0)).filter(v => !isNaN(v)),
-                    type: 'box',
-                    name: 'Puff',
-                    marker: { color: '#ff6b6b' }
-                  },
-                  {
-                    y: data.filter(row => row.Phase === 'Post-Puff').map(row => parseFloat(row.BME_HeaterRes || 0)).filter(v => !isNaN(v)),
-                    type: 'box',
-                    name: 'Post-Puff',
-                    marker: { color: '#4caf50' }
-                  }
-                ]}
-                layout={{
-                  title: 'BME Heater Resistance by Phase',
-                  paper_bgcolor: 'rgba(0,0,0,0)',
-                  plot_bgcolor: 'rgba(0,0,0,0)',
-                  font: { color: '#fff' },
-                  yaxis: { title: 'BME Heater Resistance', gridcolor: 'rgba(255,255,255,0.1)' },
-                  showlegend: true,
-                  legend: { font: { color: '#fff' } }
-                }}
-                style={{ width: '100%', height: '400px' }}
-                config={{ displayModeBar: false }}
-              />
-            </div>
+             {/* Bell Curves by Phase */}
+             <div style={styles.chartContainer}>
+               <h3 style={{ color: '#fff', marginBottom: '15px' }}>🔔 Bell Curve Distributions by Phase</h3>
+               <div style={styles.chartGrid}>
+                 {generatePhaseBellCurves('BME_HeaterRes').map((curve, index) => (
+                   <Plot
+                     key={index}
+                     data={[
+                       {
+                         x: curve.x,
+                         y: curve.y,
+                         type: 'scatter',
+                         mode: 'lines',
+                         name: 'Theoretical Normal',
+                         line: { color: '#4fc3f7', width: 3 },
+                         fill: 'tonexty',
+                         fillcolor: 'rgba(79, 195, 247, 0.3)'
+                       },
+                       {
+                         x: curve.actualValues,
+                         type: 'histogram',
+                         name: 'Actual Data',
+                         opacity: 0.7,
+                         marker: { color: '#ff6b6b' },
+                         nbinsx: 20
+                       }
+                     ]}
+                     layout={{
+                       title: `BME Heater Resistance - ${curve.phase}`,
+                       paper_bgcolor: 'rgba(0,0,0,0)',
+                       plot_bgcolor: 'rgba(0,0,0,0)',
+                       font: { color: '#fff' },
+                       xaxis: { title: 'BME Heater Resistance', gridcolor: 'rgba(255,255,255,0.1)' },
+                       yaxis: { title: 'Frequency', gridcolor: 'rgba(255,255,255,0.1)' },
+                       showlegend: true,
+                       legend: { font: { color: '#fff' } }
+                     }}
+                     style={{ width: '100%', height: '400px' }}
+                     config={{ displayModeBar: false }}
+                   />
+                 ))}
+               </div>
+             </div>
 
-            {/* Correlation Matrix */}
-            <div style={styles.chartContainer}>
-              <h3 style={{ color: '#fff', marginBottom: '15px' }}>🔗 Sensor Correlation Matrix</h3>
-              <Plot
-                data={[
-                  {
-                    z: correlationData.z,
-                    x: correlationData.x,
-                    y: correlationData.y,
-                    type: 'heatmap',
-                    colorscale: 'RdBu',
-                    zmid: 0
-                  }
-                ]}
-                layout={{
-                  title: 'Sensor Correlation Matrix',
-                  paper_bgcolor: 'rgba(0,0,0,0)',
-                  plot_bgcolor: 'rgba(0,0,0,0)',
-                  font: { color: '#fff' },
-                  xaxis: { title: 'Sensors', gridcolor: 'rgba(255,255,255,0.1)' },
-                  yaxis: { title: 'Sensors', gridcolor: 'rgba(255,255,255,0.1)' }
-                }}
-                style={{ width: '100%', height: '400px' }}
-                config={{ displayModeBar: false }}
-              />
-            </div>
+             {/* Box Plots by Phase */}
+             <div style={styles.chartContainer}>
+               <h3 style={{ color: '#fff', marginBottom: '15px' }}>📦 Sensor Box Plots by Phase</h3>
+               <Plot
+                 data={[
+                   {
+                     y: data.filter(row => row.Phase === 'Pre-Puff').map(row => parseFloat(row.BME_HeaterRes || 0)).filter(v => !isNaN(v)),
+                     type: 'box',
+                     name: 'Pre-Puff',
+                     marker: { color: '#4fc3f7' }
+                   },
+                   {
+                     y: data.filter(row => row.Phase === 'Puff').map(row => parseFloat(row.BME_HeaterRes || 0)).filter(v => !isNaN(v)),
+                     type: 'box',
+                     name: 'Puff',
+                     marker: { color: '#ff6b6b' }
+                   },
+                   {
+                     y: data.filter(row => row.Phase === 'Post-Puff').map(row => parseFloat(row.BME_HeaterRes || 0)).filter(v => !isNaN(v)),
+                     type: 'box',
+                     name: 'Post-Puff',
+                     marker: { color: '#4caf50' }
+                   }
+                 ]}
+                 layout={{
+                   title: 'BME Heater Resistance by Phase',
+                   paper_bgcolor: 'rgba(0,0,0,0)',
+                   plot_bgcolor: 'rgba(0,0,0,0)',
+                   font: { color: '#fff' },
+                   yaxis: { title: 'BME Heater Resistance', gridcolor: 'rgba(255,255,255,0.1)' },
+                   showlegend: true,
+                   legend: { font: { color: '#fff' } }
+                 }}
+                 style={{ width: '100%', height: '400px' }}
+                 config={{ displayModeBar: false }}
+               />
+             </div>
 
-            {/* Time Series */}
-            <div style={styles.chartContainer}>
-              <h3 style={{ color: '#fff', marginBottom: '15px' }}>⏰ Time Series Analysis</h3>
-              <Plot
-                data={[
-                  {
-                    x: Array.from({ length: data.length }, (_, i) => i),
-                    y: data.map(row => parseFloat(row.BME_HeaterRes || 0)),
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: 'BME Heater Resistance',
-                    line: { color: '#4fc3f7', width: 2 }
-                  },
-                  {
-                    x: Array.from({ length: data.length }, (_, i) => i),
-                    y: data.map(row => parseFloat(row.MQ136_RAW || 0)),
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: 'MQ136 Raw',
-                    line: { color: '#ff6b6b', width: 2 },
-                    yaxis: 'y2'
-                  }
-                ]}
-                layout={{
-                  title: 'Sensor Readings Over Time',
-                  paper_bgcolor: 'rgba(0,0,0,0)',
-                  plot_bgcolor: 'rgba(0,0,0,0)',
-                  font: { color: '#fff' },
-                  xaxis: { title: 'Time Index', gridcolor: 'rgba(255,255,255,0.1)' },
-                  yaxis: { title: 'BME Heater Resistance', gridcolor: 'rgba(255,255,255,0.1)' },
-                  yaxis2: { title: 'MQ136 Raw', overlaying: 'y', side: 'right', gridcolor: 'rgba(255,255,255,0.1)' },
-                  showlegend: true,
-                  legend: { font: { color: '#fff' } }
-                }}
-                style={{ width: '100%', height: '400px' }}
-                config={{ displayModeBar: false }}
-              />
-            </div>
-          </div>
-        </div>
+             {/* MQ Sensors Box Plots */}
+             <div style={styles.chartContainer}>
+               <h3 style={{ color: '#fff', marginBottom: '15px' }}>📦 MQ Sensors by Phase</h3>
+               <div style={styles.chartGrid}>
+                 <Plot
+                   data={[
+                     {
+                       y: data.filter(row => row.Phase === 'Pre-Puff').map(row => parseFloat(row.MQ136_RAW || 0)).filter(v => !isNaN(v)),
+                       type: 'box',
+                       name: 'Pre-Puff',
+                       marker: { color: '#4fc3f7' }
+                     },
+                     {
+                       y: data.filter(row => row.Phase === 'Puff').map(row => parseFloat(row.MQ136_RAW || 0)).filter(v => !isNaN(v)),
+                       type: 'box',
+                       name: 'Puff',
+                       marker: { color: '#ff6b6b' }
+                     },
+                     {
+                       y: data.filter(row => row.Phase === 'Post-Puff').map(row => parseFloat(row.MQ136_RAW || 0)).filter(v => !isNaN(v)),
+                       type: 'box',
+                       name: 'Post-Puff',
+                       marker: { color: '#4caf50' }
+                     }
+                   ]}
+                   layout={{
+                     title: 'MQ136 Raw Values by Phase',
+                     paper_bgcolor: 'rgba(0,0,0,0)',
+                     plot_bgcolor: 'rgba(0,0,0,0)',
+                     font: { color: '#fff' },
+                     yaxis: { title: 'MQ136 Raw Value', gridcolor: 'rgba(255,255,255,0.1)' },
+                     showlegend: true,
+                     legend: { font: { color: '#fff' } }
+                   }}
+                   style={{ width: '100%', height: '400px' }}
+                   config={{ displayModeBar: false }}
+                 />
+                 
+                 <Plot
+                   data={[
+                     {
+                       y: data.filter(row => row.Phase === 'Pre-Puff').map(row => parseFloat(row.MQ138_RAW || 0)).filter(v => !isNaN(v)),
+                       type: 'box',
+                       name: 'Pre-Puff',
+                       marker: { color: '#4fc3f7' }
+                     },
+                     {
+                       y: data.filter(row => row.Phase === 'Puff').map(row => parseFloat(row.MQ138_RAW || 0)).filter(v => !isNaN(v)),
+                       type: 'box',
+                       name: 'Puff',
+                       marker: { color: '#ff6b6b' }
+                     },
+                     {
+                       y: data.filter(row => row.Phase === 'Post-Puff').map(row => parseFloat(row.MQ138_RAW || 0)).filter(v => !isNaN(v)),
+                       type: 'box',
+                       name: 'Post-Puff',
+                       marker: { color: '#4caf50' }
+                     }
+                   ]}
+                   layout={{
+                     title: 'MQ138 Raw Values by Phase',
+                     paper_bgcolor: 'rgba(0,0,0,0)',
+                     plot_bgcolor: 'rgba(0,0,0,0)',
+                     font: { color: '#fff' },
+                     yaxis: { title: 'MQ138 Raw Value', gridcolor: 'rgba(255,255,255,0.1)' },
+                     showlegend: true,
+                     legend: { font: { color: '#fff' } }
+                   }}
+                   style={{ width: '100%', height: '400px' }}
+                   config={{ displayModeBar: false }}
+                 />
+               </div>
+             </div>
+
+             {/* Phase-wise Correlation Matrix */}
+             <div style={styles.chartContainer}>
+               <h3 style={{ color: '#fff', marginBottom: '15px' }}>🔗 Phase-wise Sensor Correlation Matrix</h3>
+               <div style={styles.chartGrid}>
+                 {['Pre-Puff', 'Puff', 'Post-Puff'].map(phase => {
+                   const phaseData = data.filter(row => row.Phase === phase);
+                   const phaseCorrelation = generateCorrelationMatrix(phaseData);
+                   
+                   return (
+                     <Plot
+                       key={phase}
+                       data={[
+                         {
+                           z: phaseCorrelation.z,
+                           x: phaseCorrelation.x,
+                           y: phaseCorrelation.y,
+                           type: 'heatmap',
+                           colorscale: 'RdBu',
+                           zmid: 0
+                         }
+                       ]}
+                       layout={{
+                         title: `Sensor Correlation - ${phase}`,
+                         paper_bgcolor: 'rgba(0,0,0,0)',
+                         plot_bgcolor: 'rgba(0,0,0,0)',
+                         font: { color: '#fff' },
+                         xaxis: { title: 'Sensors', gridcolor: 'rgba(255,255,255,0.1)' },
+                         yaxis: { title: 'Sensors', gridcolor: 'rgba(255,255,255,0.1)' }
+                       }}
+                       style={{ width: '100%', height: '400px' }}
+                       config={{ displayModeBar: false }}
+                     />
+                   );
+                 })}
+               </div>
+             </div>
+
+             {/* Time Series by Phase */}
+             <div style={styles.chartContainer}>
+               <h3 style={{ color: '#fff', marginBottom: '15px' }}>⏰ Time Series Analysis by Phase</h3>
+               <div style={styles.chartGrid}>
+                 {['Pre-Puff', 'Puff', 'Post-Puff'].map(phase => {
+                   const phaseData = data.filter(row => row.Phase === phase);
+                   
+                   return (
+                     <Plot
+                       key={phase}
+                       data={[
+                         {
+                           x: Array.from({ length: phaseData.length }, (_, i) => i),
+                           y: phaseData.map(row => parseFloat(row.BME_HeaterRes || 0)),
+                           type: 'scatter',
+                           mode: 'lines',
+                           name: 'BME Heater Resistance',
+                           line: { color: '#4fc3f7', width: 2 }
+                         },
+                         {
+                           x: Array.from({ length: phaseData.length }, (_, i) => i),
+                           y: phaseData.map(row => parseFloat(row.MQ136_RAW || 0)),
+                           type: 'scatter',
+                           mode: 'lines',
+                           name: 'MQ136 Raw',
+                           line: { color: '#ff6b6b', width: 2 },
+                           yaxis: 'y2'
+                         }
+                       ]}
+                       layout={{
+                         title: `Sensor Readings - ${phase}`,
+                         paper_bgcolor: 'rgba(0,0,0,0)',
+                         plot_bgcolor: 'rgba(0,0,0,0)',
+                         font: { color: '#fff' },
+                         xaxis: { title: 'Time Index', gridcolor: 'rgba(255,255,255,0.1)' },
+                         yaxis: { title: 'BME Heater Resistance', gridcolor: 'rgba(255,255,255,0.1)' },
+                         yaxis2: { title: 'MQ136 Raw', overlaying: 'y', side: 'right', gridcolor: 'rgba(255,255,255,0.1)' },
+                         showlegend: true,
+                         legend: { font: { color: '#fff' } }
+                       }}
+                       style={{ width: '100%', height: '400px' }}
+                       config={{ displayModeBar: false }}
+                     />
+                   );
+                 })}
+               </div>
+             </div>
+           </div>
+         </div>
 
         {/* CSV Viewer Tab */}
         <div style={activeTab === 'csv' ? styles.activeTabContent : styles.tabContent}>
