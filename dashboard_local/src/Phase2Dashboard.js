@@ -282,7 +282,8 @@ export default function Phase2Dashboard() {
   const [error, setError] = useState(null);
   const [selectedFile, setSelectedFile] = useState('01Aug_Phase2_Ammonia.csv');
   const [availableFiles] = useState([
-    '01Aug_Phase2_Ammonia.csv'
+    '01Aug_Phase2_Ammonia.csv',
+    '04Aug_Phase2_p_Cresol.csv'
   ]);
   const [activeTab, setActiveTab] = useState('overview');
 
