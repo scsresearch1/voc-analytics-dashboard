@@ -317,11 +317,6 @@ const styles = {
      color: 'rgba(255,255,255,0.7)',
      marginBottom: '5px',
    },
-   sensorStatValue: {
-     fontSize: '1.1rem',
-     fontWeight: 600,
-     color: '#4fc3f7',
-   },
    phaseSelector: {
      marginBottom: '20px',
    },
