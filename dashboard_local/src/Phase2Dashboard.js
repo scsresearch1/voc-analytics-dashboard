@@ -231,55 +231,52 @@ const styles = {
     fontSize: '1.2rem',
     marginTop: '50px',
   },
-  fileSelector: {
-    marginBottom: '20px',
-  },
-  fileSelectorLabel: {
-    color: '#fff',
-    fontSize: '1rem',
-    fontWeight: 600,
-    marginBottom: '8px',
-    display: 'block',
-  },
-  // Tab styles
-  tabContainer: {
-    display: 'flex',
-    background: 'rgba(255,255,255,0.1)',
-    borderRadius: '10px',
-    padding: '5px',
-    marginBottom: '20px',
-    backdropFilter: 'blur(10px)',
-  },
-  tab: {
-    flex: 1,
-    padding: '12px 20px',
-    borderRadius: '8px',
-    border: 'none',
-    background: 'transparent',
-    color: 'rgba(255,255,255,0.7)',
-    cursor: 'pointer',
-    fontSize: '14px',
-    fontWeight: 600,
-    transition: 'all 0.3s ease',
-  },
-  activeTab: {
-    background: 'linear-gradient(90deg, #00c6ff 0%, #0072ff 100%)',
-    color: '#fff',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-  },
-  tabContent: {
-    display: 'none',
-  },
-  activeTabContent: {
-    display: 'block',
-  },
-  chartContainer: {
-    background: 'rgba(255,255,255,0.05)',
-    borderRadius: '10px',
-    padding: '20px',
-    marginBottom: '20px',
-  },
-     chartGrid: {
+     fileSelectorLabel: {
+     color: '#fff',
+     fontSize: '1rem',
+     fontWeight: 600,
+     marginBottom: '8px',
+     display: 'block',
+   },
+   // Tab styles
+   tabContainer: {
+     display: 'flex',
+     background: 'rgba(255,255,255,0.1)',
+     borderRadius: '10px',
+     padding: '5px',
+     marginBottom: '20px',
+     backdropFilter: 'blur(10px)',
+   },
+   tab: {
+     flex: 1,
+     padding: '12px 20px',
+     borderRadius: '8px',
+     border: 'none',
+     background: 'transparent',
+     color: 'rgba(255,255,255,0.7)',
+     cursor: 'pointer',
+     fontSize: '14px',
+     fontWeight: 600,
+     transition: 'all 0.3s ease',
+   },
+   activeTab: {
+     background: 'linear-gradient(90deg, #00c6ff 0%, #0072ff 100%)',
+     color: '#fff',
+     boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+   },
+   tabContent: {
+     display: 'none',
+   },
+   activeTabContent: {
+     display: 'block',
+   },
+   chartContainer: {
+     background: 'rgba(255,255,255,0.05)',
+     borderRadius: '10px',
+     padding: '20px',
+     marginBottom: '20px',
+   },
+   chartGrid: {
      display: 'grid',
      gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))',
      gap: '20px',
@@ -617,13 +614,6 @@ export default function Phase2Dashboard() {
   }
 
   const stats = calculateDetailedStats(data);
-  const bmeValues = data.map(row => parseFloat(row.BME_HeaterRes || 0)).filter(v => !isNaN(v));
-  const mq136Values = data.map(row => parseFloat(row.MQ136_RAW || 0)).filter(v => !isNaN(v));
-
-  const bmeBellCurve = generateBellCurveData(bmeValues, 'BME_HeaterRes');
-  const mq136BellCurve = generateBellCurveData(mq136Values, 'MQ136_RAW');
-  
-  const correlationData = generateCorrelationMatrix(data);
 
   return (
     <div style={styles.container}>
