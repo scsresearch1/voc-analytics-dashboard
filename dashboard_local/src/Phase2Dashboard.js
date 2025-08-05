@@ -884,18 +884,15 @@ export default function Phase2Dashboard() {
 
   const loadAvailableFiles = async () => {
     try {
-      const response = await fetch('/api/phase2-files');
-      if (!response.ok) {
-        throw new Error('Failed to load available files');
-      }
-      const files = await response.json();
+      // For Netlify deployment, load files directly from public folder
+      const files = ['01Aug_Phase2_Ammonia.csv', '05Aug_Phase2_p-Cresol.csv'];
       setAvailableFiles(files);
       if (files.length > 0 && !selectedFile) {
         setSelectedFile(files[0]);
       }
     } catch (err) {
       console.error('Error loading available files:', err);
-      // Fallback to hardcoded files if API fails
+      // Fallback to hardcoded files
       const fallbackFiles = ['01Aug_Phase2_Ammonia.csv', '05Aug_Phase2_p-Cresol.csv'];
       setAvailableFiles(fallbackFiles);
       if (!selectedFile) {
@@ -907,13 +904,28 @@ export default function Phase2Dashboard() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/phase2-file?name=${encodeURIComponent(selectedFile)}`);
+      
+      // For Netlify deployment, load CSV directly from public folder
+      const response = await fetch(`/Phase2/${selectedFile}`);
       if (!response.ok) {
         throw new Error('Failed to load data');
       }
-      const result = await response.json();
+      
+      const csvText = await response.text();
+      
+      // Parse CSV data
+      const lines = csvText.split('\n');
+      const headers = lines[0].split(',');
+      const data = lines.slice(1).filter(line => line.trim()).map(line => {
+        const values = line.split(',');
+        const row = {};
+        headers.forEach((header, index) => {
+          row[header.trim()] = values[index] ? values[index].trim() : '';
+        });
+        return row;
+      });
 
-      setData(result.data);
+      setData(data);
     } catch (err) {
       setError(err.message);
     } finally {
