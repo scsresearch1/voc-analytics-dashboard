@@ -373,7 +373,7 @@ export default function Phase2Dashboard() {
     } catch (err) {
       console.error('Error loading available files:', err);
       // Fallback to hardcoded files if API fails
-      const fallbackFiles = ['01Aug_Phase2_Ammonia.csv', '04Aug_Phase2_p_Cresol.csv'];
+      const fallbackFiles = ['01Aug_Phase2_Ammonia.csv', '05Aug_Phase2_p-Cresol.csv'];
       setAvailableFiles(fallbackFiles);
       if (!selectedFile) {
         setSelectedFile(fallbackFiles[0]);
@@ -384,13 +384,12 @@ export default function Phase2Dashboard() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/Phase2/${selectedFile}`);
+      const response = await fetch(`/api/phase2-file?name=${encodeURIComponent(selectedFile)}`);
       if (!response.ok) {
         throw new Error('Failed to load data');
       }
-      const csvText = await response.text();
-      const parsedData = parseCSV(csvText);
-      setData(parsedData);
+      const result = await response.json();
+      setData(result.data);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -398,19 +397,7 @@ export default function Phase2Dashboard() {
     }
   };
 
-  const parseCSV = (csvText) => {
-    const lines = csvText.split('\n');
-    const headers = lines[0].split(',');
-    const data = lines.slice(1).filter(line => line.trim()).map(line => {
-      const values = line.split(',');
-      const row = {};
-      headers.forEach((header, index) => {
-        row[header.trim()] = values[index] ? values[index].trim() : '';
-      });
-      return row;
-    });
-    return data;
-  };
+
 
   const calculateDetailedStats = (data) => {
     if (!data || data.length === 0) return {};
