@@ -63,8 +63,7 @@ function computeAllStats(data) {
     'MQ136', 'MQ138_A', 'MQ138_B', 'BME688_D', 'BME688_C', 'TGS2602', 'TGS 2602', 'SPEC'
   ];
   const sensors = header.filter(h => sensorNames.includes(h));
-  console.log('Header:', header);
-  console.log('Detected sensors:', sensors);
+        // Header and sensors processed
 
   // Per-sensor stats
   const sensorStats = {};

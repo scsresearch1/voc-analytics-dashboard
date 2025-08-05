@@ -35,6 +35,19 @@ app.get('/api/files', async (req, res) => {
   }
 });
 
+// List all Phase2 CSV files
+app.get('/api/phase2-files', async (req, res) => {
+  try {
+    const phase2Dir = path.join(DATA_DIR, 'dashboard_local', 'public', 'Phase2');
+    const allFiles = await fs.readdir(phase2Dir);
+    const files = allFiles.filter(f => f.endsWith('.csv'));
+    res.json(files);
+  } catch (err) {
+    console.error('Error listing Phase2 files:', err);
+    res.status(500).json({ error: 'Failed to list Phase2 files', details: err.message });
+  }
+});
+
 // Serve the contents of a selected CSV file as JSON, with optional columns
 app.get('/api/file', async (req, res) => {
   const { name, columns } = req.query;
@@ -59,6 +72,59 @@ app.get('/api/file', async (req, res) => {
     res.json({ name, data });
   } catch (err) {
     res.status(500).json({ error: 'Failed to read file', details: err.message });
+  }
+});
+
+// Serve the contents of a selected Phase2 CSV file as JSON
+app.get('/api/phase2-file', async (req, res) => {
+  const { name, columns } = req.query;
+  if (!name) return res.status(400).json({ error: 'Missing file name' });
+  const filePath = path.join(DATA_DIR, 'dashboard_local', 'public', 'Phase2', name);
+      try {
+      // Check cache first
+      if (!csvCache[name]) {
+        if (!(await fs.stat(filePath)).isFile()) {
+          return res.status(404).json({ error: 'File not found' });
+        }
+        const csvString = await fs.readFile(filePath, 'utf8');
+        const records = parse(csvString, { skip_empty_lines: true });
+        csvCache[name] = records;
+      }
+    let data = csvCache[name];
+    
+    // Convert array of arrays to array of objects
+    const header = data[0];
+    const rows = data.slice(1);
+    const objectData = rows.map(row => {
+      const obj = {};
+      header.forEach((col, index) => {
+        obj[col] = row[index];
+      });
+      return obj;
+    });
+    
+    // If columns are specified, filter columns
+    if (columns) {
+      const colArr = Array.isArray(columns) ? columns : columns.split(',');
+      const filteredData = objectData.map(row => {
+        const filteredRow = {};
+        colArr.forEach(col => {
+          if (row[col] !== undefined) {
+            filteredRow[col] = row[col];
+          }
+        });
+        return filteredRow;
+      });
+      data = filteredData;
+    } else {
+      data = objectData;
+    }
+    
+
+    res.json({ name, data });
+  } catch (err) {
+    console.error('Error in /api/phase2-file:', err);
+    res.status(500).json({ error: 'Failed to read Phase2 file', details: err.message });
   }
 });
 
