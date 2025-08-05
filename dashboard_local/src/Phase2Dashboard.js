@@ -65,15 +65,15 @@ const styles = {
      padding: '10px',
      borderRadius: '8px',
      border: '1px solid rgba(255,255,255,0.3)',
-     background: 'rgba(255,255,255,0.1)',
-     color: '#fff',
+     background: '#ffffff',
+     color: '#000000',
      fontSize: '14px',
      marginBottom: '15px',
      cursor: 'pointer',
    },
    selectOption: {
-     background: '#2a5298',
-     color: '#fff',
+     background: '#ffffff',
+     color: '#000000',
      padding: '8px',
    },
    fileSelector: {
@@ -344,17 +344,42 @@ export default function Phase2Dashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedFile, setSelectedFile] = useState('01Aug_Phase2_Ammonia.csv');
-  const [availableFiles] = useState([
-    '01Aug_Phase2_Ammonia.csv',
-    '04Aug_Phase2_p_Cresol.csv'
-  ]);
+  const [selectedFile, setSelectedFile] = useState('');
+  const [availableFiles, setAvailableFiles] = useState([]);
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedPhase, setSelectedPhase] = useState('all');
 
   useEffect(() => {
-    loadData();
+    loadAvailableFiles();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (selectedFile) {
+      loadData();
+    }
   }, [selectedFile]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const loadAvailableFiles = async () => {
+    try {
+      const response = await fetch('/api/phase2-files');
+      if (!response.ok) {
+        throw new Error('Failed to load available files');
+      }
+      const files = await response.json();
+      setAvailableFiles(files);
+      if (files.length > 0 && !selectedFile) {
+        setSelectedFile(files[0]);
+      }
+    } catch (err) {
+      console.error('Error loading available files:', err);
+      // Fallback to hardcoded files if API fails
+      const fallbackFiles = ['01Aug_Phase2_Ammonia.csv', '04Aug_Phase2_p_Cresol.csv'];
+      setAvailableFiles(fallbackFiles);
+      if (!selectedFile) {
+        setSelectedFile(fallbackFiles[0]);
+      }
+    }
+  };
 
   const loadData = async () => {
     try {
@@ -592,10 +617,12 @@ export default function Phase2Dashboard() {
     navigate('/options');
   };
 
-  if (loading) {
+  if (loading || !selectedFile) {
     return (
       <div style={styles.container}>
-        <div style={styles.loading}>Loading Phase 2 Bio Lab Testing Data...</div>
+        <div style={styles.loading}>
+          {!selectedFile ? 'Please select a VOC file...' : 'Loading Phase 2 Bio Lab Testing Data...'}
+        </div>
       </div>
     );
   }
@@ -627,16 +654,22 @@ export default function Phase2Dashboard() {
         
                  <div style={styles.fileSelector}>
            <label style={styles.fileSelectorLabel}>Select VOC File:</label>
-           <select 
-             style={styles.select} 
-             value={selectedFile} 
-             onChange={(e) => setSelectedFile(e.target.value)}
-             size="1"
-           >
-             {availableFiles.map(file => (
-               <option key={file} value={file}>{file}</option>
-             ))}
-           </select>
+           {availableFiles.length > 0 ? (
+             <select 
+               style={styles.select} 
+               value={selectedFile} 
+               onChange={(e) => setSelectedFile(e.target.value)}
+               size="1"
+             >
+               {availableFiles.map(file => (
+                 <option key={file} value={file}>{file}</option>
+               ))}
+             </select>
+           ) : (
+             <div style={{ color: '#fff', fontSize: '14px', padding: '10px', background: 'rgba(255,255,255,0.1)', borderRadius: '8px' }}>
+               Loading available files...
+             </div>
+           )}
          </div>
 
         <button 
