@@ -103,32 +103,63 @@ app.get('/api/phase2-file', async (req, res) => {
       return obj;
     });
     
-    // If columns are specified, filter columns
-    if (columns) {
-      const colArr = Array.isArray(columns) ? columns : columns.split(',');
-      const filteredData = objectData.map(row => {
-        const filteredRow = {};
-        colArr.forEach(col => {
-          if (row[col] !== undefined) {
-            filteredRow[col] = row[col];
-          }
-        });
-        return filteredRow;
-      });
-      data = filteredData;
-    } else {
-      data = objectData;
-    }
-    
-
-    res.json({ name, data });
+    res.json(objectData);
   } catch (err) {
-    console.error('Error in /api/phase2-file:', err);
-    res.status(500).json({ error: 'Failed to read Phase2 file', details: err.message });
+    res.status(500).json({ error: 'Failed to read file', details: err.message });
   }
 });
 
-// Serve summary statistics for a file/column
+// List all Baseline CSV files
+app.get('/api/baseline-files', async (req, res) => {
+  try {
+    const baselineDir = path.join(DATA_DIR, 'dashboard_local', 'public', 'Baseline');
+    const allFiles = await fs.readdir(baselineDir);
+    const files = allFiles.filter(f => f.endsWith('.csv'));
+    res.json(files);
+  } catch (err) {
+    console.error('Error listing Baseline files:', err);
+    res.status(500).json({ error: 'Failed to list Baseline files', details: err.message });
+  }
+});
+
+// Serve the contents of a selected Baseline CSV file as JSON
+app.get('/api/baseline-file', async (req, res) => {
+  const { filename } = req.query;
+  if (!filename) return res.status(400).json({ error: 'Missing filename' });
+  
+  try {
+    const filePath = path.join(DATA_DIR, 'dashboard_local', 'public', 'Baseline', filename);
+    
+    // Check cache first
+    if (!csvCache[filename]) {
+      if (!(await fs.stat(filePath)).isFile()) {
+        return res.status(404).json({ error: 'File not found' });
+      }
+      const csvString = await fs.readFile(filePath, 'utf8');
+      const records = parse(csvString, { skip_empty_lines: true });
+      csvCache[filename] = records;
+    }
+    
+    let data = csvCache[filename];
+    
+    // Convert array of arrays to array of objects
+    const header = data[0];
+    const rows = data.slice(1);
+    const objectData = rows.map(row => {
+      const obj = {};
+      header.forEach((col, index) => {
+        obj[col] = row[index];
+      });
+      return obj;
+    });
+    
+    res.json(objectData);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to read file', details: err.message });
+  }
+});
+
+// --- Summary Endpoint ---
 app.get('/api/summary', async (req, res) => {
   const { name, column } = req.query;
   if (!name || !column) return res.status(400).json({ error: 'Missing parameters' });

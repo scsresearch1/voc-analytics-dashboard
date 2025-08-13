@@ -103,6 +103,10 @@ export default function OptionsPage() {
         // Navigate to data format page (to be implemented)
         navigate('/data-format');
         break;
+      case 'baseline':
+        // Navigate to baseline dashboard
+        navigate('/baseline-dashboard');
+        break;
       case 'phase1':
         // Navigate to existing dashboard
         navigate('/dashboard');
@@ -126,6 +130,13 @@ export default function OptionsPage() {
       title: 'Data Format',
       description: 'View data format specifications and legends with detailed explanations.',
       icon: '📊',
+      comingSoon: false,
+    },
+    {
+      id: 'baseline',
+      title: 'Baseline Values',
+      description: 'Comprehensive baseline sensor data analysis with scientific visualizations and download options.',
+      icon: '📈',
       comingSoon: false,
     },
     {
