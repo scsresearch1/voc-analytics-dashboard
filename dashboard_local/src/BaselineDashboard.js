@@ -15,14 +15,14 @@ const BaselineDashboard = () => {
     const fetchBaselineData = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/baseline-files`);
+        const response = await fetch(`https://voc-analytics-dashboard.onrender.com/api/baseline-files`);
         if (!response.ok) {
           throw new Error('Failed to fetch baseline files');
         }
         
         // Fetch both config files
-        const config1Response = await fetch(`/api/baseline-file?filename=${encodeURIComponent('config_1 13_aug.csv')}`);
-        const config2Response = await fetch(`/api/baseline-file?filename=${encodeURIComponent('config_2 13_aug.csv')}`);
+        const config1Response = await fetch(`https://voc-analytics-dashboard.onrender.com/api/baseline-file?filename=${encodeURIComponent('config_1 13_aug.csv')}`);
+        const config2Response = await fetch(`https://voc-analytics-dashboard.onrender.com/api/baseline-file?filename=${encodeURIComponent('config_2 13_aug.csv')}`);
         
         if (!config1Response.ok || !config2Response.ok) {
           throw new Error('Failed to fetch config files');
