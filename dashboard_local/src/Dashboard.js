@@ -60,7 +60,7 @@ function computeAllStats(data) {
   const rows = data.slice(1).filter(r => r.length > 1);
   // Universal sensor list for all files
   const sensorNames = [
-    'MQ136', 'MQ138_A', 'MQ138_B', 'BME688_D', 'BME688_C', 'TGS2602', 'TGS 2602', 'SPEC'
+    'MQ136', 'MQ138_A', 'MQ138_B', 'BME688_D', 'BME688_C', 'TGS2602', 'SPEC', 'Alpha_PID'
   ];
   const sensors = header.filter(h => sensorNames.includes(h));
         // Header and sensors processed
@@ -267,12 +267,10 @@ export default function Dashboard() {
           for (let i = 1; i < lines.length; i++) {
             if (lines[i].trim()) {
               const values = lines[i].split(',').map(v => v.trim());
-              const row = {};
-              headers.forEach((header, index) => { row[header] = values[index] || ''; });
-              rows.push(row);
+              rows.push(values);
             }
           }
-          const allStats = computeAllStats(rows);
+          const allStats = computeAllStats([headers, ...rows]);
           return { file, data: allStats };
         });
     })).then(results => {
