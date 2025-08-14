@@ -33,14 +33,13 @@ const BaselineDashboard = () => {
         setLoading(true);
         console.log('Fetching baseline data...');
         
-        // Use Render backend URL for production
-        const baseURL = config.backendURL;
-        
+        const baseURL = config.backendURL; // Use config for baseURL
+
         // Create fetch with timeout
         const fetchWithTimeout = async (url, options = {}) => {
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), config.timeout);
-          
+
           try {
             const response = await fetch(url, {
               ...options,
@@ -56,8 +55,8 @@ const BaselineDashboard = () => {
             throw error;
           }
         };
-        
-        // Fetch all four CSV files with retry logic
+
+        // Fetch with retry logic
         const fetchWithRetry = async (url, retries = config.maxRetries) => {
           try {
             return await fetchWithTimeout(url);
@@ -70,11 +69,19 @@ const BaselineDashboard = () => {
             throw error;
           }
         };
-        
-        const config1_13 = await fetchWithRetry(`${baseURL}/api/baseline-file?filename=config_1 13_aug.csv`);
-        const config1_14 = await fetchWithRetry(`${baseURL}/api/baseline-file?filename=config_1 14_aug.csv`);
-        const config2_13 = await fetchWithRetry(`${baseURL}/api/baseline-file?filename=config_2 13_aug.csv`);
-        const config2_14 = await fetchWithRetry(`${baseURL}/api/baseline-file?filename=config_2 14_aug.csv`);
+
+        // Use CORS proxy in production to bypass Render's CORS restrictions
+        const getFullURL = (endpoint, filename) => {
+          if (config.useCorsProxy && config.environment === 'production') {
+            return `${config.corsProxy}${baseURL}${endpoint}?filename=${encodeURIComponent(filename)}`;
+          }
+          return `${baseURL}${endpoint}?filename=${encodeURIComponent(filename)}`;
+        };
+
+        const config1_13 = await fetchWithRetry(getFullURL('/api/baseline-file', 'config_1 13_aug.csv'));
+        const config1_14 = await fetchWithRetry(getFullURL('/api/baseline-file', 'config_1 14_aug.csv'));
+        const config2_13 = await fetchWithRetry(getFullURL('/api/baseline-file', 'config_2 13_aug.csv'));
+        const config2_14 = await fetchWithRetry(getFullURL('/api/baseline-file', 'config_2 14_aug.csv'));
         
         console.log('Response statuses:', {
           config1_13: config1_13.status,
