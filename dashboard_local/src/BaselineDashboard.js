@@ -636,7 +636,7 @@ const BaselineDashboard = () => {
 const styles = {
   container: {
     minHeight: '100vh',
-    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
     padding: '20px',
     fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
     display: 'flex',
@@ -645,13 +645,13 @@ const styles = {
   header: {
     textAlign: 'center',
     marginBottom: '30px',
-    color: '#fff',
-    background: 'rgba(255, 255, 255, 0.1)',
+    color: '#2c3e50',
+    background: 'rgba(255, 255, 255, 0.9)',
     backdropFilter: 'blur(10px)',
     borderRadius: '20px',
     padding: '30px',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+    border: '1px solid rgba(52, 73, 94, 0.1)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)'
   },
   headerTop: {
     display: 'flex',
@@ -661,9 +661,9 @@ const styles = {
   },
   backButton: {
     padding: '12px 20px',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(52, 73, 94, 0.8)',
     color: 'white',
-    border: '1px solid rgba(255, 255, 255, 0.3)',
+    border: '1px solid rgba(52, 73, 94, 0.2)',
     borderRadius: '25px',
     cursor: 'pointer',
     fontSize: '0.9rem',
@@ -671,16 +671,16 @@ const styles = {
     backdropFilter: 'blur(10px)',
     fontWeight: '500',
     ':hover': {
-      backgroundColor: 'rgba(255, 255, 255, 0.3)',
+      backgroundColor: 'rgba(52, 73, 94, 1)',
       transform: 'translateY(-1px)',
       boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)'
     }
   },
   logoutButton: {
     padding: '12px 20px',
-    backgroundColor: 'rgba(220, 53, 69, 0.8)',
+    backgroundColor: 'rgba(231, 76, 60, 0.8)',
     color: 'white',
-    border: '1px solid rgba(220, 53, 69, 0.3)',
+    border: '1px solid rgba(231, 76, 60, 0.2)',
     borderRadius: '25px',
     cursor: 'pointer',
     fontSize: '0.9rem',
@@ -688,52 +688,52 @@ const styles = {
     backdropFilter: 'blur(10px)',
     fontWeight: '500',
     ':hover': {
-      backgroundColor: 'rgba(220, 53, 69, 1)',
+      backgroundColor: 'rgba(231, 76, 60, 1)',
       transform: 'translateY(-1px)',
-      boxShadow: '0 4px 15px rgba(220, 53, 69, 0.4)'
+      boxShadow: '0 4px 15px rgba(231, 76, 60, 0.4)'
     }
   },
   title: {
     fontSize: '3rem',
-    color: '#fff',
+    color: '#2c3e50',
     margin: '0 0 15px 0',
     fontWeight: '700',
-    textShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',
-    background: 'linear-gradient(45deg, #fff, #f0f0f0)',
+    textShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+    background: 'linear-gradient(45deg, #2c3e50, #34495e)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent'
   },
   subtitle: {
     fontSize: '1.3rem',
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: '#7f8c8d',
     margin: '0',
-    fontWeight: '300',
+    fontWeight: '400',
     letterSpacing: '0.5px'
   },
   configSelector: {
     textAlign: 'center',
     marginBottom: '30px',
-    background: 'rgba(255, 255, 255, 0.1)',
+    background: 'rgba(255, 255, 255, 0.9)',
     backdropFilter: 'blur(10px)',
     borderRadius: '15px',
     padding: '25px',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
+    border: '1px solid rgba(52, 73, 94, 0.1)',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)'
   },
   configLabel: {
     fontSize: '1.2rem',
     marginRight: '15px',
     fontWeight: '600',
-    color: '#fff',
-    textShadow: '0 1px 3px rgba(0, 0, 0, 0.3)'
+    color: '#2c3e50',
+    textShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
   },
   configSelect: {
     padding: '12px 20px',
     fontSize: '1rem',
     borderRadius: '10px',
-    border: '1px solid rgba(255, 255, 255, 0.3)',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    color: '#333',
+    border: '1px solid rgba(52, 73, 94, 0.2)',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    color: '#2c3e50',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     minWidth: '250px'
@@ -744,36 +744,36 @@ const styles = {
     marginBottom: '30px',
     flexWrap: 'wrap',
     gap: '15px',
-    background: 'rgba(255, 255, 255, 0.1)',
+    background: 'rgba(255, 255, 255, 0.9)',
     backdropFilter: 'blur(10px)',
     borderRadius: '20px',
     padding: '20px',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
+    border: '1px solid rgba(52, 73, 94, 0.1)',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)'
   },
   tab: {
     padding: '15px 30px',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    border: '1px solid rgba(255, 255, 255, 0.3)',
+    backgroundColor: 'rgba(52, 73, 94, 0.1)',
+    border: '1px solid rgba(52, 73, 94, 0.2)',
     borderRadius: '25px',
     cursor: 'pointer',
     fontSize: '1rem',
     transition: 'all 0.3s ease',
-    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
-    color: '#fff',
+    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08)',
+    color: '#2c3e50',
     fontWeight: '500',
     backdropFilter: 'blur(10px)',
     ':hover': {
-      backgroundColor: 'rgba(255, 255, 255, 0.3)',
+      backgroundColor: 'rgba(52, 73, 94, 0.2)',
       transform: 'translateY(-2px)',
-      boxShadow: '0 6px 20px rgba(0, 0, 0, 0.15)'
+      boxShadow: '0 6px 20px rgba(0, 0, 0, 0.12)'
     }
   },
   activeTab: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    color: '#667eea',
-    border: '1px solid rgba(255, 255, 255, 0.5)',
-    boxShadow: '0 6px 20px rgba(0, 0, 0, 0.15)',
+    backgroundColor: 'rgba(52, 152, 219, 0.9)',
+    color: 'white',
+    border: '1px solid rgba(52, 152, 219, 0.3)',
+    boxShadow: '0 6px 20px rgba(52, 152, 219, 0.3)',
     transform: 'translateY(-2px)'
   },
   tabContent: {
@@ -791,17 +791,17 @@ const styles = {
     padding: '35px',
     borderRadius: '20px',
     marginBottom: '30px',
-    boxShadow: '0 10px 40px rgba(0, 0, 0, 0.15)',
-    border: '1px solid rgba(255, 255, 255, 0.3)',
+    boxShadow: '0 10px 40px rgba(0, 0, 0, 0.08)',
+    border: '1px solid rgba(52, 73, 94, 0.1)',
     backdropFilter: 'blur(10px)'
   },
   cardTitle: {
     fontSize: '2rem',
-    color: '#333',
+    color: '#2c3e50',
     marginBottom: '25px',
     fontWeight: '600',
     textAlign: 'center',
-    background: 'linear-gradient(45deg, #667eea, #764ba2)',
+    background: 'linear-gradient(45deg, #3498db, #2980b9)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent'
   },
@@ -810,11 +810,11 @@ const styles = {
   },
   heaterProfilesTitle: {
     fontSize: '1.5rem',
-    color: '#333',
+    color: '#2c3e50',
     marginBottom: '20px',
     fontWeight: '600',
     textAlign: 'center',
-    background: 'linear-gradient(45deg, #667eea, #764ba2)',
+    background: 'linear-gradient(45deg, #3498db, #2980b9)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent'
   },
@@ -825,23 +825,23 @@ const styles = {
     marginBottom: '20px'
   },
   heaterProfileCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     padding: '20px',
     borderRadius: '15px',
     textAlign: 'center',
-    border: '1px solid rgba(102, 126, 234, 0.2)',
-    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
+    border: '1px solid rgba(52, 152, 219, 0.2)',
+    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08)',
     transition: 'all 0.3s ease',
     cursor: 'pointer'
   },
   heaterProfileValue: {
     fontSize: '2rem',
     fontWeight: 'bold',
-    color: '#667eea',
+    color: '#3498db',
     marginBottom: '10px'
   },
   heaterProfileLabel: {
-    color: '#666',
+    color: '#7f8c8d',
     fontSize: '0.9rem'
   },
   sensorStatsSection: {
@@ -849,11 +849,11 @@ const styles = {
   },
   sensorStatsTitle: {
     fontSize: '1.5rem',
-    color: '#333',
+    color: '#2c3e50',
     marginBottom: '20px',
     fontWeight: '600',
     textAlign: 'center',
-    background: 'linear-gradient(45deg, #667eea, #764ba2)',
+    background: 'linear-gradient(45deg, #3498db, #2980b9)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent'
   },
@@ -863,11 +863,11 @@ const styles = {
     gap: '20px'
   },
   sensorStatCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     padding: '25px',
     borderRadius: '15px',
-    border: '1px solid rgba(102, 126, 234, 0.2)',
-    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)'
+    border: '1px solid rgba(52, 152, 219, 0.2)',
+    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08)'
   },
   sensorStatHeader: {
     display: 'flex',
@@ -877,11 +877,11 @@ const styles = {
   sensorStatIcon: {
     fontSize: '2rem',
     marginRight: '15px',
-    color: '#667eea'
+    color: '#3498db'
   },
   sensorStatTitle: {
     fontSize: '1.2rem',
-    color: '#333',
+    color: '#2c3e50',
     fontWeight: '600'
   },
   sensorStatRow: {
@@ -889,14 +889,14 @@ const styles = {
     justifyContent: 'space-between',
     marginBottom: '10px',
     padding: '8px 0',
-    borderBottom: '1px solid rgba(102, 126, 234, 0.1)'
+    borderBottom: '1px solid rgba(52, 152, 219, 0.1)'
   },
   sensorStatLabel: {
     fontWeight: '500',
-    color: '#555'
+    color: '#34495e'
   },
   sensorStatValue: {
-    color: '#667eea',
+    color: '#3498db',
     fontFamily: 'monospace',
     fontWeight: '600'
   },
@@ -906,28 +906,28 @@ const styles = {
     gap: '25px'
   },
   downloadCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     padding: '30px',
     borderRadius: '15px',
     textAlign: 'center',
-    border: '1px solid rgba(102, 126, 234, 0.2)',
-    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
+    border: '1px solid rgba(52, 152, 219, 0.2)',
+    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08)',
     transition: 'all 0.3s ease'
   },
   downloadTitle: {
     fontSize: '1.4rem',
-    color: '#333',
+    color: '#2c3e50',
     marginBottom: '20px',
     fontWeight: '600'
   },
   downloadDescription: {
-    color: '#666',
+    color: '#7f8c8d',
     marginBottom: '25px',
     lineHeight: '1.6'
   },
   downloadButton: {
     padding: '15px 30px',
-    background: 'linear-gradient(45deg, #667eea, #764ba2)',
+    background: 'linear-gradient(45deg, #3498db, #2980b9)',
     color: 'white',
     border: 'none',
     borderRadius: '25px',
@@ -935,10 +935,10 @@ const styles = {
     fontSize: '1rem',
     transition: 'all 0.3s ease',
     fontWeight: '500',
-    boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)',
+    boxShadow: '0 4px 15px rgba(52, 152, 219, 0.3)',
     ':hover': {
       transform: 'translateY(-2px)',
-      boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)'
+      boxShadow: '0 6px 20px rgba(52, 152, 219, 0.4)'
     }
   },
   multiDownloadButtons: {
@@ -949,16 +949,16 @@ const styles = {
   loading: {
     textAlign: 'center',
     fontSize: '1.8rem',
-    color: '#fff',
+    color: '#2c3e50',
     marginTop: '100px',
-    textShadow: '0 2px 10px rgba(0, 0, 0, 0.3)'
+    textShadow: '0 2px 10px rgba(0, 0, 0, 0.1)'
   },
   error: {
     textAlign: 'center',
     fontSize: '1.8rem',
-    color: '#ff6b6b',
+    color: '#e74c3c',
     marginTop: '100px',
-    textShadow: '0 2px 10px rgba(0, 0, 0, 0.3)'
+    textShadow: '0 2px 10px rgba(0, 0, 0, 0.1)'
   },
   overviewContent: {
     display: 'grid',
@@ -978,35 +978,35 @@ const styles = {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     padding: '25px',
     borderRadius: '15px',
-    border: '1px solid rgba(102, 126, 234, 0.2)',
-    boxShadow: '0 6px 25px rgba(0, 0, 0, 0.1)',
+    border: '1px solid rgba(52, 152, 219, 0.2)',
+    boxShadow: '0 6px 25px rgba(0, 0, 0, 0.08)',
     transition: 'all 0.3s ease',
     cursor: 'pointer',
     ':hover': {
       transform: 'translateY(-3px)',
-      boxShadow: '0 10px 35px rgba(0, 0, 0, 0.15)',
-      border: '1px solid rgba(102, 126, 234, 0.4)'
+      boxShadow: '0 10px 35px rgba(0, 0, 0, 0.12)',
+      border: '1px solid rgba(52, 152, 219, 0.4)'
     }
   },
   overviewIcon: {
     fontSize: '3rem',
     marginRight: '20px',
-    color: '#667eea'
+    color: '#3498db'
   },
   overviewTitle: {
     fontSize: '1.3rem',
-    color: '#333',
+    color: '#2c3e50',
     marginBottom: '8px',
     fontWeight: '600'
   },
   overviewValue: {
     fontSize: '1.8rem',
-    color: '#667eea',
+    color: '#3498db',
     marginBottom: '5px',
     fontWeight: '700'
   },
   overviewSubtext: {
-    color: '#666',
+    color: '#7f8c8d',
     fontSize: '0.9rem'
   },
   dataQualitySection: {
