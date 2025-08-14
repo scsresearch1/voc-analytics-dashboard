@@ -254,13 +254,25 @@ export default function Dashboard() {
     setLoading(true);
     Promise.all(vocFiles.map(file => {
       if (fileCache[file]) return Promise.resolve({ file, data: fileCache[file] });
-      return fetch(`https://voc-analytics-dashboard.onrender.com/api/file?name=${encodeURIComponent(file)}`)
+      return fetch(`/VOC_Data/${file}`)
         .then(res => {
           if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-          return res.json();
+          return res.text();
         })
-        .then(response => {
-          const allStats = computeAllStats(response.data);
+        .then(csvText => {
+          // Parse CSV data
+          const lines = csvText.split('\n');
+          const headers = lines[0].split(',').map(h => h.trim());
+          const rows = [];
+          for (let i = 1; i < lines.length; i++) {
+            if (lines[i].trim()) {
+              const values = lines[i].split(',').map(v => v.trim());
+              const row = {};
+              headers.forEach((header, index) => { row[header] = values[index] || ''; });
+              rows.push(row);
+            }
+          }
+          const allStats = computeAllStats(rows);
           return { file, data: allStats };
         });
     })).then(results => {

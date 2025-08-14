@@ -28,48 +28,63 @@ const BaselineDashboard = () => {
 
 
   // Load CSV files directly from public folder
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-                 console.log('Loading CSV files from deployed Render backend...');
-        
-                 // Load all CSV files from deployed Render backend
-         const [config1_13, config1_14, config2_13, config2_14] = await Promise.all([
-           fetch('https://voc-analytics-dashboard.onrender.com/api/baseline-file?name=config_1 13_aug.csv').then(r => r.json()),
-           fetch('https://voc-analytics-dashboard.onrender.com/api/baseline-file?name=config_1 14_aug.csv').then(r => r.json()),
-           fetch('https://voc-analytics-dashboard.onrender.com/api/baseline-file?name=config_2 13_aug.csv').then(r => r.json()),
-           fetch('https://voc-analytics-dashboard.onrender.com/api/baseline-file?name=config_2 14_aug.csv').then(r => r.json())
-         ]);
-        
-        // Extract data from API responses
-        const config1_13Data = config1_13.data || [];
-        const config1_14Data = config1_14.data || [];
-        const config2_13Data = config2_13.data || [];
-        const config2_14Data = config2_14.data || [];
-        
-        console.log('Data loaded:', {
-          config1_13: config1_13Data.length,
-          config1_14: config1_14Data.length,
-          config2_13: config2_13Data.length,
-          config2_14: config2_14Data.length
-        });
-        
-        setData({
-          'config_1_13': config1_13Data,
-          'config_1_14': config1_14Data,
-          'config_2_13': config2_13Data,
-          'config_2_14': config2_14Data
-        });
-        
-        setLoading(false);
-      } catch (err) {
-        console.error('Error loading CSV files:', err);
-        setError(err.message);
-        setLoading(false);
-      }
-    };
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      console.log('Loading CSV files from public folder...');
+      
+      // Load all CSV files directly from public folder
+      const [config1_13, config1_14, config2_13, config2_14] = await Promise.all([
+        fetch('/Baseline/config_1 13_aug.csv').then(r => r.text()),
+        fetch('/Baseline/config_1 14_aug.csv').then(r => r.text()),
+        fetch('/Baseline/config_2 13_aug.csv').then(r => r.text()),
+        fetch('/Baseline/config_2 14_aug.csv').then(r => r.text())
+      ]);
+      
+      // Parse CSV data
+      const parseCSV = (csvText) => {
+        const lines = csvText.split('\n');
+        const headers = lines[0].split(',').map(h => h.trim());
+        const rows = [];
+        for (let i = 1; i < lines.length; i++) {
+          if (lines[i].trim()) {
+            const values = lines[i].split(',').map(v => v.trim());
+            const row = {};
+            headers.forEach((header, index) => { row[header] = values[index] || ''; });
+            rows.push(row);
+          }
+        }
+        return rows;
+      };
+      
+      const config1_13Data = parseCSV(config1_13);
+      const config1_14Data = parseCSV(config1_14);
+      const config2_13Data = parseCSV(config2_13);
+      const config2_14Data = parseCSV(config2_14);
+      
+      console.log('Data loaded:', {
+        config1_13: config1_13Data.length,
+        config1_14: config1_14Data.length,
+        config2_13: config2_13Data.length,
+        config2_14: config2_14Data.length
+      });
+      
+      setData({
+        'config_1_13': config1_13Data,
+        'config_1_14': config1_14Data,
+        'config_2_13': config2_13Data,
+        'config_2_14': config2_14Data
+      });
+      
+      setLoading(false);
+    } catch (err) {
+      console.error('Error loading CSV files:', err);
+      setError(err.message);
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     loadData();
   }, []);
 
@@ -286,6 +301,20 @@ const BaselineDashboard = () => {
   return (
     <div style={styles.container}>
       <div style={styles.header}>
+        <div style={styles.headerTop}>
+          <button
+            onClick={() => window.history.back()}
+            style={styles.backButton}
+          >
+            ← Back
+          </button>
+          <button
+            onClick={() => window.location.href = '/'}
+            style={styles.logoutButton}
+          >
+            Logout
+          </button>
+        </div>
         <h1 style={styles.title}>🔬 Baseline Sensor Analysis Dashboard</h1>
         <div style={styles.subtitle}>Comprehensive Analysis of Baseline Sensor Data (13th & 14th August Combined)</div>
       </div>
@@ -631,6 +660,38 @@ const styles = {
     color: '#333',
     fontSize: '2.5rem',
     fontWeight: 'bold'
+  },
+  headerTop: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '15px'
+  },
+  backButton: {
+    padding: '8px 15px',
+    backgroundColor: '#6c757d',
+    color: 'white',
+    border: 'none',
+    borderRadius: '25px',
+    cursor: 'pointer',
+    fontSize: '0.9rem',
+    transition: 'background-color 0.3s',
+    ':hover': {
+      backgroundColor: '#5a6268'
+    }
+  },
+  logoutButton: {
+    padding: '8px 15px',
+    backgroundColor: '#dc3545',
+    color: 'white',
+    border: 'none',
+    borderRadius: '25px',
+    cursor: 'pointer',
+    fontSize: '0.9rem',
+    transition: 'background-color 0.3s',
+    ':hover': {
+      backgroundColor: '#c82333'
+    }
   },
   title: {
     fontSize: '2.5rem',
