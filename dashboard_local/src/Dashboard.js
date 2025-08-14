@@ -382,7 +382,7 @@ export default function Dashboard() {
         {/* Main Content by Tab */}
         {loading && <div className="spinner"></div>}
         {error && <div style={{ color: t.error, fontSize: 18, marginTop: 32 }}>{error}</div>}
-        {selectedTab === 'Sensor Charts' && files.filter(f => f.split('_')[0] === voc).map(file => {
+        {selectedTab === 'overview' && files.filter(f => f.split('_')[0] === voc).map(file => {
           const stats = fileCache[file];
           if (!stats || !Array.isArray(stats.sensors) || stats.sensors.length === 0) return <div key={file} style={{ color: t.error, marginBottom: 24 }}>No sensor data available for this file.</div>;
           return (
@@ -402,7 +402,7 @@ export default function Dashboard() {
             </div>
           );
         })}
-        {selectedTab === 'Summary Stats' && files.filter(f => f.split('_')[0] === voc).map(file => {
+        {selectedTab === 'correlation' && files.filter(f => f.split('_')[0] === voc).map(file => {
           const stats = fileCache[file];
           if (!stats || !Array.isArray(stats.sensors) || stats.sensors.length === 0) return <div key={file} style={{ color: t.error, marginBottom: 24 }}>No sensor data available for this file.</div>;
           // Group rows by Phase, Heater_Profile, Heater_Temparature
@@ -466,31 +466,8 @@ export default function Dashboard() {
             </div>
           );
         })}
-        {selectedTab === 'Heatmap' && files.filter(f => f.split('_')[0] === voc).map(file => {
-          const stats = fileCache[file];
-          if (!stats || !stats.heatmap || !Array.isArray(stats.heatmap.sensors) || !Array.isArray(stats.heatmap.z)) {
-            return <div key={file} style={{ color: t.error, marginBottom: 24 }}>No heatmap data available for this file.</div>;
-          }
-          return (
-            <div key={file} style={{ marginBottom: 48 }}>
-              <h3 style={{ color: t.accent, marginBottom: 12 }}>{getConfig(file)}</h3>
-              <Plot data={[{ z: stats.heatmap.z, x: stats.heatmap.rows.map((_, i) => i + 1), y: stats.heatmap.sensors, type: 'heatmap', colorscale: t.heatmap }]} layout={{ autosize: true, responsive: true, paper_bgcolor: t.plotBg, plot_bgcolor: t.plotBg, font: { color: t.plotFont }, xaxis: { title: 'Sample Index' }, yaxis: { title: 'Sensors' }, margin: { t: 32, l: 48, r: 24, b: 48 } }} useResizeHandler={true} style={{ width: '100%', height: 320 }} />
-            </div>
-          );
-        })}
-        {selectedTab === 'Correlation Matrix' && files.filter(f => f.split('_')[0] === voc).map(file => {
-          const stats = fileCache[file];
-          if (!stats || !stats.correlation || !Array.isArray(stats.correlation.sensors) || !Array.isArray(stats.correlation.matrix)) {
-            return <div key={file} style={{ color: t.error, marginBottom: 24 }}>No correlation data available for this file.</div>;
-          }
-          return (
-            <div key={file} style={{ marginBottom: 48 }}>
-              <h3 style={{ color: t.accent, marginBottom: 12 }}>{getConfig(file)}</h3>
-              <Plot data={[{ z: stats.correlation.matrix, x: stats.correlation.sensors, y: stats.correlation.sensors, type: 'heatmap', colorbar: { title: 'Correlation' }, colorscale: t.corr, zmin: -1, zmax: 1 }]} layout={{ autosize: true, responsive: true, paper_bgcolor: t.plotBg, plot_bgcolor: t.plotBg, font: { color: t.plotFont }, margin: { t: 32, l: 48, r: 24, b: 48 } }} useResizeHandler={true} style={{ width: '100%', height: 320 }} />
-            </div>
-          );
-        })}
-        {selectedTab === 'Boxplot' && files.filter(f => f.split('_')[0] === voc).map(file => {
+
+        {selectedTab === 'boxplots' && files.filter(f => f.split('_')[0] === voc).map(file => {
           const stats = fileCache[file];
           if (!stats || !Array.isArray(stats.sensors) || stats.sensors.length === 0) return <div key={file} style={{ color: t.error, marginBottom: 24 }}>No sensor data available for this file.</div>;
           const allSensors = stats.sensors;
@@ -509,7 +486,7 @@ export default function Dashboard() {
             </div>
           );
         })}
-        {selectedTab === 'CSV Data Viewer' && (() => {
+        {selectedTab === 'csv' && (() => {
           const vocFiles = files.filter(f => f.split('_')[0] === voc);
           if (!vocFiles.length) return <div>No files found for this VoC.</div>;
           const file = vocFiles[csvTab];

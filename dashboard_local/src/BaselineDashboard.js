@@ -356,8 +356,9 @@ const BaselineDashboard = () => {
       </div>
 
       {/* Tab Content */}
-      <div style={styles.tabContent}>
-        {/* Overview Tab */}
+      
+      {/* Overview Tab */}
+      <div style={activeTab === 'overview' ? styles.activeTabContent : styles.tabContent}>
         {activeTab === 'overview' && stats && (
           <div style={styles.overviewContent}>
             <div style={styles.card}>
@@ -495,8 +496,10 @@ const BaselineDashboard = () => {
             </div>
           </div>
         )}
+      </div>
 
-        {/* Time Series Tab */}
+      {/* Time Series Tab */}
+      <div style={activeTab === 'timeSeries' ? styles.activeTabContent : styles.tabContent}>
         {activeTab === 'timeSeries' && (
           <div style={styles.timeSeriesContent}>
             <div style={styles.card}>
@@ -516,8 +519,10 @@ const BaselineDashboard = () => {
             </div>
           </div>
         )}
+      </div>
 
-        {/* Correlation Tab */}
+      {/* Correlation Tab */}
+      <div style={activeTab === 'correlation' ? styles.activeTabContent : styles.tabContent}>
         {activeTab === 'correlation' && (
           <div style={styles.correlationContent}>
             <div style={styles.card}>
@@ -530,8 +535,10 @@ const BaselineDashboard = () => {
             </div>
           </div>
         )}
+      </div>
 
-        {/* Distribution Tab */}
+      {/* Distribution Tab */}
+      <div style={activeTab === 'distribution' ? styles.activeTabContent : styles.tabContent}>
         {activeTab === 'distribution' && (
           <div style={styles.distributionContent}>
             <div style={styles.card}>
@@ -551,8 +558,10 @@ const BaselineDashboard = () => {
             </div>
           </div>
         )}
+      </div>
 
-        {/* Downloads Tab */}
+      {/* Downloads Tab */}
+      <div style={activeTab === 'downloads' ? styles.activeTabContent : styles.tabContent}>
         {activeTab === 'downloads' && (
           <div style={styles.downloadsContent}>
             <div style={styles.card}>
@@ -694,7 +703,9 @@ const styles = {
     margin: '0 auto'
   },
   activeTabContent: {
-    display: 'block'
+    display: 'block',
+    maxWidth: '1200px',
+    margin: '0 auto'
   },
   card: {
     backgroundColor: 'white',
