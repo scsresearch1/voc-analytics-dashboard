@@ -439,10 +439,10 @@ const BaselineDashboard = () => {
               </div>
               
               <div style={styles.heaterProfilesSection}>
-                <h3 style={styles.sectionTitle}>🔥 Heater Profile Analysis</h3>
+                <h3 style={styles.heaterProfilesTitle}>🔥 Heater Profile Analysis</h3>
                 <div style={styles.heaterProfilesGrid}>
                   {stats.heaterProfiles?.map(profile => (
-                    <div key={profile} style={styles.profileCard}>
+                    <div key={profile} style={styles.heaterProfileCard}>
                       <h4 style={styles.profileTitle}>Profile {profile}</h4>
                       <div style={styles.profileStats}>
                         <div style={styles.profileStat}>
@@ -460,11 +460,14 @@ const BaselineDashboard = () => {
               </div>
 
               <div style={styles.sensorStatsSection}>
-                <h3 style={styles.sectionTitle}>📊 Sensor Statistics</h3>
+                <h3 style={styles.sensorStatsTitle}>📊 Sensor Statistics</h3>
                 <div style={styles.sensorStatsGrid}>
                   {stats.sensorStats && Object.entries(stats.sensorStats).map(([sensor, stat]) => (
-                    <div key={sensor} style={styles.sensorCard}>
-                      <h4 style={styles.sensorTitle}>{sensor}</h4>
+                    <div key={sensor} style={styles.sensorStatCard}>
+                      <div style={styles.sensorStatHeader}>
+                        <span style={styles.sensorStatIcon}>📊</span>
+                        <h4 style={styles.sensorStatTitle}>{sensor}</h4>
+                      </div>
                       <div style={styles.sensorStatRow}>
                         <span style={styles.sensorStatLabel}>Min:</span>
                         <span style={styles.sensorStatValue}>{stat.min.toFixed(4)}</span>
@@ -633,97 +636,145 @@ const BaselineDashboard = () => {
 const styles = {
   container: {
     minHeight: '100vh',
-    backgroundColor: '#f5f5f5',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     padding: '20px',
-    fontFamily: 'Arial, sans-serif',
+    fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
     display: 'flex',
     flexDirection: 'column'
   },
   header: {
     textAlign: 'center',
     marginBottom: '30px',
-    color: '#333',
-    fontSize: '2.5rem',
-    fontWeight: 'bold'
+    color: '#fff',
+    background: 'rgba(255, 255, 255, 0.1)',
+    backdropFilter: 'blur(10px)',
+    borderRadius: '20px',
+    padding: '30px',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
   },
   headerTop: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '15px'
+    marginBottom: '20px'
   },
   backButton: {
-    padding: '8px 15px',
-    backgroundColor: '#6c757d',
+    padding: '12px 20px',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     color: 'white',
-    border: 'none',
+    border: '1px solid rgba(255, 255, 255, 0.3)',
     borderRadius: '25px',
     cursor: 'pointer',
     fontSize: '0.9rem',
-    transition: 'background-color 0.3s',
+    transition: 'all 0.3s ease',
+    backdropFilter: 'blur(10px)',
+    fontWeight: '500',
     ':hover': {
-      backgroundColor: '#5a6268'
+      backgroundColor: 'rgba(255, 255, 255, 0.3)',
+      transform: 'translateY(-1px)',
+      boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)'
     }
   },
   logoutButton: {
-    padding: '8px 15px',
-    backgroundColor: '#dc3545',
+    padding: '12px 20px',
+    backgroundColor: 'rgba(220, 53, 69, 0.8)',
     color: 'white',
-    border: 'none',
+    border: '1px solid rgba(220, 53, 69, 0.3)',
     borderRadius: '25px',
     cursor: 'pointer',
     fontSize: '0.9rem',
-    transition: 'background-color 0.3s',
+    transition: 'all 0.3s ease',
+    backdropFilter: 'blur(10px)',
+    fontWeight: '500',
     ':hover': {
-      backgroundColor: '#c82333'
+      backgroundColor: 'rgba(220, 53, 69, 1)',
+      transform: 'translateY(-1px)',
+      boxShadow: '0 4px 15px rgba(220, 53, 69, 0.4)'
     }
   },
   title: {
-    fontSize: '2.5rem',
-    color: '#333',
-    margin: '0 0 10px 0'
+    fontSize: '3rem',
+    color: '#fff',
+    margin: '0 0 15px 0',
+    fontWeight: '700',
+    textShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',
+    background: 'linear-gradient(45deg, #fff, #f0f0f0)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent'
   },
   subtitle: {
-    fontSize: '1.2rem',
-    color: '#666',
-    margin: '0'
+    fontSize: '1.3rem',
+    color: 'rgba(255, 255, 255, 0.9)',
+    margin: '0',
+    fontWeight: '300',
+    letterSpacing: '0.5px'
   },
   configSelector: {
     textAlign: 'center',
-    marginBottom: '30px'
+    marginBottom: '30px',
+    background: 'rgba(255, 255, 255, 0.1)',
+    backdropFilter: 'blur(10px)',
+    borderRadius: '15px',
+    padding: '25px',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
   },
   configLabel: {
-    fontSize: '1.1rem',
+    fontSize: '1.2rem',
     marginRight: '15px',
-    fontWeight: 'bold'
+    fontWeight: '600',
+    color: '#fff',
+    textShadow: '0 1px 3px rgba(0, 0, 0, 0.3)'
   },
   configSelect: {
-    padding: '8px 15px',
+    padding: '12px 20px',
     fontSize: '1rem',
-    borderRadius: '5px',
-    border: '1px solid #ddd'
+    borderRadius: '10px',
+    border: '1px solid rgba(255, 255, 255, 0.3)',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    color: '#333',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    minWidth: '250px'
   },
   tabContainer: {
     display: 'flex',
     justifyContent: 'center',
     marginBottom: '30px',
     flexWrap: 'wrap',
-    gap: '10px'
+    gap: '15px',
+    background: 'rgba(255, 255, 255, 0.1)',
+    backdropFilter: 'blur(10px)',
+    borderRadius: '20px',
+    padding: '20px',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
   },
   tab: {
-    padding: '12px 24px',
-    backgroundColor: 'white',
-    border: '1px solid #ddd',
+    padding: '15px 30px',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    border: '1px solid rgba(255, 255, 255, 0.3)',
     borderRadius: '25px',
     cursor: 'pointer',
     fontSize: '1rem',
-    transition: 'all 0.3s',
-    boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+    transition: 'all 0.3s ease',
+    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
+    color: '#fff',
+    fontWeight: '500',
+    backdropFilter: 'blur(10px)',
+    ':hover': {
+      backgroundColor: 'rgba(255, 255, 255, 0.3)',
+      transform: 'translateY(-2px)',
+      boxShadow: '0 6px 20px rgba(0, 0, 0, 0.15)'
+    }
   },
   activeTab: {
-    backgroundColor: '#007bff',
-    color: 'white',
-    border: '1px solid #007bff'
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    color: '#667eea',
+    border: '1px solid rgba(255, 255, 255, 0.5)',
+    boxShadow: '0 6px 20px rgba(0, 0, 0, 0.15)',
+    transform: 'translateY(-2px)'
   },
   tabContent: {
     display: 'none',
@@ -736,93 +787,118 @@ const styles = {
     margin: '0 auto'
   },
   card: {
-    backgroundColor: 'white',
-    padding: '30px',
-    borderRadius: '15px',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    padding: '35px',
+    borderRadius: '20px',
     marginBottom: '30px',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+    boxShadow: '0 10px 40px rgba(0, 0, 0, 0.15)',
+    border: '1px solid rgba(255, 255, 255, 0.3)',
+    backdropFilter: 'blur(10px)'
   },
   cardTitle: {
-    fontSize: '1.8rem',
+    fontSize: '2rem',
     color: '#333',
     marginBottom: '25px',
-    textAlign: 'center'
+    fontWeight: '600',
+    textAlign: 'center',
+    background: 'linear-gradient(45deg, #667eea, #764ba2)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent'
   },
   heaterProfilesSection: {
     marginBottom: '30px'
   },
-  sectionTitle: {
+  heaterProfilesTitle: {
     fontSize: '1.5rem',
     color: '#333',
     marginBottom: '20px',
-    textAlign: 'center'
+    fontWeight: '600',
+    textAlign: 'center',
+    background: 'linear-gradient(45deg, #667eea, #764ba2)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent'
   },
   heaterProfilesGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-    gap: '15px'
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: '20px',
+    marginBottom: '20px'
   },
-  profileCard: {
-    backgroundColor: '#f8f9fa',
-    padding: '15px',
-    borderRadius: '8px',
+  heaterProfileCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    padding: '20px',
+    borderRadius: '15px',
     textAlign: 'center',
-    border: '1px solid #e9ecef'
+    border: '1px solid rgba(102, 126, 234, 0.2)',
+    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
+    transition: 'all 0.3s ease',
+    cursor: 'pointer'
   },
-  profileTitle: {
-    fontSize: '1.1rem',
-    color: '#333',
+  heaterProfileValue: {
+    fontSize: '2rem',
+    fontWeight: 'bold',
+    color: '#667eea',
     marginBottom: '10px'
   },
-  profileStats: {
-    textAlign: 'center'
-  },
-  profileStat: {
-    marginBottom: '5px'
-  },
-  profileStatLabel: {
-    fontWeight: 'bold',
-    color: '#555',
-    marginRight: '8px'
-  },
-  profileStatValue: {
-    color: '#007bff',
-    fontSize: '1rem'
+  heaterProfileLabel: {
+    color: '#666',
+    fontSize: '0.9rem'
   },
   sensorStatsSection: {
-    marginTop: '30px'
+    marginBottom: '30px'
+  },
+  sensorStatsTitle: {
+    fontSize: '1.5rem',
+    color: '#333',
+    marginBottom: '20px',
+    fontWeight: '600',
+    textAlign: 'center',
+    background: 'linear-gradient(45deg, #667eea, #764ba2)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent'
   },
   sensorStatsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
     gap: '20px'
   },
-  sensorCard: {
-    backgroundColor: '#f8f9fa',
-    padding: '20px',
-    borderRadius: '10px',
-    border: '1px solid #e9ecef'
+  sensorStatCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    padding: '25px',
+    borderRadius: '15px',
+    border: '1px solid rgba(102, 126, 234, 0.2)',
+    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)'
   },
-  sensorTitle: {
+  sensorStatHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: '15px'
+  },
+  sensorStatIcon: {
+    fontSize: '2rem',
+    marginRight: '15px',
+    color: '#667eea'
+  },
+  sensorStatTitle: {
     fontSize: '1.2rem',
     color: '#333',
-    marginBottom: '15px',
-    textAlign: 'center'
+    fontWeight: '600'
   },
   sensorStatRow: {
     display: 'flex',
     justifyContent: 'space-between',
-    marginBottom: '8px',
-    padding: '5px 0',
-    borderBottom: '1px solid #eee'
+    marginBottom: '10px',
+    padding: '8px 0',
+    borderBottom: '1px solid rgba(102, 126, 234, 0.1)'
   },
   sensorStatLabel: {
-    fontWeight: 'bold',
+    fontWeight: '500',
     color: '#555'
   },
   sensorStatValue: {
-    color: '#007bff',
-    fontFamily: 'monospace'
+    color: '#667eea',
+    fontFamily: 'monospace',
+    fontWeight: '600'
   },
   downloadGrid: {
     display: 'grid',
@@ -830,48 +906,59 @@ const styles = {
     gap: '25px'
   },
   downloadCard: {
-    backgroundColor: '#f8f9fa',
-    padding: '25px',
-    borderRadius: '10px',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    padding: '30px',
+    borderRadius: '15px',
     textAlign: 'center',
-    border: '1px solid #e9ecef'
+    border: '1px solid rgba(102, 126, 234, 0.2)',
+    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
+    transition: 'all 0.3s ease'
   },
   downloadTitle: {
-    fontSize: '1.3rem',
+    fontSize: '1.4rem',
     color: '#333',
-    marginBottom: '15px'
+    marginBottom: '20px',
+    fontWeight: '600'
   },
   downloadDescription: {
     color: '#666',
-    marginBottom: '20px',
-    lineHeight: '1.5'
+    marginBottom: '25px',
+    lineHeight: '1.6'
   },
   downloadButton: {
-    padding: '12px 25px',
-    backgroundColor: '#28a745',
+    padding: '15px 30px',
+    background: 'linear-gradient(45deg, #667eea, #764ba2)',
     color: 'white',
     border: 'none',
     borderRadius: '25px',
     cursor: 'pointer',
     fontSize: '1rem',
-    transition: 'background-color 0.3s'
+    transition: 'all 0.3s ease',
+    fontWeight: '500',
+    boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)',
+    ':hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)'
+    }
   },
   multiDownloadButtons: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '10px'
+    gap: '15px'
   },
   loading: {
     textAlign: 'center',
-    fontSize: '1.5rem',
-    color: '#666',
-    marginTop: '100px'
+    fontSize: '1.8rem',
+    color: '#fff',
+    marginTop: '100px',
+    textShadow: '0 2px 10px rgba(0, 0, 0, 0.3)'
   },
   error: {
     textAlign: 'center',
-    fontSize: '1.5rem',
-    color: '#dc3545',
-    marginTop: '100px'
+    fontSize: '1.8rem',
+    color: '#ff6b6b',
+    marginTop: '100px',
+    textShadow: '0 2px 10px rgba(0, 0, 0, 0.3)'
   },
   overviewContent: {
     display: 'grid',
@@ -882,37 +969,45 @@ const styles = {
   overviewCards: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-    gap: '20px',
+    gap: '25px',
     marginBottom: '30px'
   },
   overviewCard: {
     display: 'flex',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
-    padding: '20px',
-    borderRadius: '10px',
-    border: '1px solid #e9ecef',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    padding: '25px',
+    borderRadius: '15px',
+    border: '1px solid rgba(102, 126, 234, 0.2)',
+    boxShadow: '0 6px 25px rgba(0, 0, 0, 0.1)',
+    transition: 'all 0.3s ease',
+    cursor: 'pointer',
+    ':hover': {
+      transform: 'translateY(-3px)',
+      boxShadow: '0 10px 35px rgba(0, 0, 0, 0.15)',
+      border: '1px solid rgba(102, 126, 234, 0.4)'
+    }
   },
   overviewIcon: {
-    fontSize: '2.5rem',
-    marginRight: '15px',
-    color: '#007bff'
+    fontSize: '3rem',
+    marginRight: '20px',
+    color: '#667eea'
   },
   overviewTitle: {
-    fontSize: '1.2rem',
+    fontSize: '1.3rem',
     color: '#333',
-    marginBottom: '5px'
+    marginBottom: '8px',
+    fontWeight: '600'
   },
   overviewValue: {
     fontSize: '1.8rem',
-    fontWeight: 'bold',
-    color: '#007bff',
-    marginBottom: '5px'
+    color: '#667eea',
+    marginBottom: '5px',
+    fontWeight: '700'
   },
   overviewSubtext: {
-    fontSize: '0.9rem',
-    color: '#666'
+    color: '#666',
+    fontSize: '0.9rem'
   },
   dataQualitySection: {
     marginBottom: '30px'
