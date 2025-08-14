@@ -589,6 +589,8 @@ export default function Phase2Dashboard() {
   const [error, setError] = useState(null);
   const [selectedFile, setSelectedFile] = useState('');
   const [availableFiles, setAvailableFiles] = useState([]);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [selectedHeaterProfile, setSelectedHeaterProfile] = useState('all');
 
   const [hoveredStats, setHoveredStats] = useState({});
   const [hoveredSensors, setHoveredSensors] = useState({});

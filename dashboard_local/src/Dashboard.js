@@ -135,7 +135,16 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [theme, setTheme] = useState('dark');
+  const [selectedTab, setSelectedTab] = useState('overview');
+  const [csvTab, setCsvTab] = useState('raw');
+  const [csvSearch, setCsvSearch] = useState('');
+  const [csvSort, setCsvSort] = useState({ col: null, asc: true });
+  const [csvVisibleCols, setCsvVisibleCols] = useState(new Set());
+  const [boxplotSensors, setBoxplotSensors] = useState(new Set());
   const t = themes[theme];
+
+  // Define tabs
+  const tabs = ['overview', 'correlation', 'boxplots', 'csv'];
 
   const navigate = useNavigate();
 
@@ -193,6 +202,27 @@ export default function Dashboard() {
 
   function exportFilteredCSV(filename, rows) {
     downloadCSV(filename.replace(/\.csv$/, '_filtered.csv'), rows);
+  }
+
+  // Helper functions for UI interactions
+  function toggleBoxplotSensor(sensor) {
+    const newSet = new Set(boxplotSensors);
+    if (newSet.has(sensor)) {
+      newSet.delete(sensor);
+    } else {
+      newSet.add(sensor);
+    }
+    setBoxplotSensors(newSet);
+  }
+
+  function toggleCol(col) {
+    const newSet = new Set(csvVisibleCols);
+    if (newSet.has(col)) {
+      newSet.delete(col);
+    } else {
+      newSet.add(col);
+    }
+    setCsvVisibleCols(newSet);
   }
 
   // Load file list from public folder
