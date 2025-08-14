@@ -50,21 +50,21 @@ const BaselineDashboard = () => {
     const loadData = async () => {
       try {
         setLoading(true);
-        console.log('Loading CSV files directly from frontend...');
+        console.log('Loading CSV files from backend API...');
         
-        // Load all CSV files directly
+        // Load all CSV files from backend API
         const [config1_13, config1_14, config2_13, config2_14] = await Promise.all([
-          fetch('/Baseline/config_1 13_aug.csv').then(r => r.text()),
-          fetch('/Baseline/config_1 14_aug.csv').then(r => r.text()),
-          fetch('/Baseline/config_2 13_aug.csv').then(r => r.text()),
-          fetch('/Baseline/config_2 14_aug.csv').then(r => r.text())
+          fetch('http://localhost:4000/api/baseline-file?name=config_1 13_aug.csv').then(r => r.json()),
+          fetch('http://localhost:4000/api/baseline-file?name=config_1 14_aug.csv').then(r => r.json()),
+          fetch('http://localhost:4000/api/baseline-file?name=config_2 13_aug.csv').then(r => r.json()),
+          fetch('http://localhost:4000/api/baseline-file?name=config_2 14_aug.csv').then(r => r.json())
         ]);
         
-        // Parse CSV data
-        const config1_13Data = parseCSV(config1_13);
-        const config1_14Data = parseCSV(config1_14);
-        const config2_13Data = parseCSV(config2_13);
-        const config2_14Data = parseCSV(config2_14);
+        // Extract data from API responses
+        const config1_13Data = config1_13.data || [];
+        const config1_14Data = config1_14.data || [];
+        const config2_13Data = config2_13.data || [];
+        const config2_14Data = config2_14.data || [];
         
         console.log('Data loaded:', {
           config1_13: config1_13Data.length,

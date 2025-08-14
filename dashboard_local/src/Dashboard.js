@@ -254,21 +254,13 @@ export default function Dashboard() {
     setLoading(true);
     Promise.all(vocFiles.map(file => {
       if (fileCache[file]) return Promise.resolve({ file, data: fileCache[file] });
-      return fetch(`/${file}`)
-        .then(res => res.text())
-        .then(csvText => {
-          // Parse CSV data
-          const lines = csvText.split('\n');
-          const headers = lines[0].split(',').map(h => h.trim());
-          const rows = lines.slice(1).filter(r => r.trim()).map(line => {
-            const values = line.split(',').map(v => v.trim());
-            const row = {};
-            headers.forEach((header, index) => {
-              row[header] = values[index] || '';
-            });
-            return row;
-          });
-          const allStats = computeAllStats(rows);
+      return fetch(`http://localhost:4000/api/file?name=${encodeURIComponent(file)}`)
+        .then(res => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+          return res.json();
+        })
+        .then(response => {
+          const allStats = computeAllStats(response.data);
           return { file, data: allStats };
         });
     })).then(results => {
