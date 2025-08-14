@@ -630,11 +630,16 @@ const styles = {
     minHeight: '100vh',
     backgroundColor: '#f5f5f5',
     padding: '20px',
-    fontFamily: 'Arial, sans-serif'
+    fontFamily: 'Arial, sans-serif',
+    display: 'flex',
+    flexDirection: 'column'
   },
   header: {
     textAlign: 'center',
-    marginBottom: '30px'
+    marginBottom: '30px',
+    color: '#333',
+    fontSize: '2.5rem',
+    fontWeight: 'bold'
   },
   title: {
     fontSize: '2.5rem',
@@ -684,8 +689,12 @@ const styles = {
     border: '1px solid #007bff'
   },
   tabContent: {
+    display: 'none',
     maxWidth: '1200px',
     margin: '0 auto'
+  },
+  activeTabContent: {
+    display: 'block'
   },
   card: {
     backgroundColor: 'white',
@@ -826,7 +835,10 @@ const styles = {
     marginTop: '100px'
   },
   overviewContent: {
-    flex: 1
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+    gap: '25px',
+    marginTop: '20px'
   },
   overviewCards: {
     display: 'grid',
@@ -904,24 +916,23 @@ const styles = {
     backgroundColor: '#007bff',
     borderRadius: '5px'
   },
-     qualityDescription: {
-     fontSize: '0.9rem',
-     color: '#666',
-     marginTop: '10px'
-   },
-   // Missing styles for tab content
-   timeSeriesContent: {
-     flex: 1
-   },
-   correlationContent: {
-     flex: 1
-   },
-   distributionContent: {
-     flex: 1
-   },
-   downloadsContent: {
-     flex: 1
-   }
- };
+  qualityDescription: {
+    fontSize: '0.9rem',
+    color: '#666',
+    marginTop: '10px'
+  },
+  timeSeriesContent: {
+    flex: 1
+  },
+  correlationContent: {
+    flex: 1
+  },
+  distributionContent: {
+    flex: 1
+  },
+  downloadsContent: {
+    flex: 1
+  }
+};
 
 export default BaselineDashboard;
