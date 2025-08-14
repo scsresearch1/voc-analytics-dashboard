@@ -254,7 +254,7 @@ export default function Dashboard() {
     setLoading(true);
     Promise.all(vocFiles.map(file => {
       if (fileCache[file]) return Promise.resolve({ file, data: fileCache[file] });
-      return fetch(`http://localhost:4000/api/file?name=${encodeURIComponent(file)}`)
+      return fetch(`https://voc-analytics-dashboard.onrender.com/api/file?name=${encodeURIComponent(file)}`)
         .then(res => {
           if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
           return res.json();

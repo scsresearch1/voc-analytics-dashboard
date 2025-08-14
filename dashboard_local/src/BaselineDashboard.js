@@ -32,15 +32,15 @@ const BaselineDashboard = () => {
     const loadData = async () => {
       try {
         setLoading(true);
-        console.log('Loading CSV files from backend API...');
+                 console.log('Loading CSV files from deployed Render backend...');
         
-        // Load all CSV files from backend API
-        const [config1_13, config1_14, config2_13, config2_14] = await Promise.all([
-          fetch('http://localhost:4000/api/baseline-file?name=config_1 13_aug.csv').then(r => r.json()),
-          fetch('http://localhost:4000/api/baseline-file?name=config_1 14_aug.csv').then(r => r.json()),
-          fetch('http://localhost:4000/api/baseline-file?name=config_2 13_aug.csv').then(r => r.json()),
-          fetch('http://localhost:4000/api/baseline-file?name=config_2 14_aug.csv').then(r => r.json())
-        ]);
+                 // Load all CSV files from deployed Render backend
+         const [config1_13, config1_14, config2_13, config2_14] = await Promise.all([
+           fetch('https://voc-analytics-dashboard.onrender.com/api/baseline-file?name=config_1 13_aug.csv').then(r => r.json()),
+           fetch('https://voc-analytics-dashboard.onrender.com/api/baseline-file?name=config_1 14_aug.csv').then(r => r.json()),
+           fetch('https://voc-analytics-dashboard.onrender.com/api/baseline-file?name=config_2 13_aug.csv').then(r => r.json()),
+           fetch('https://voc-analytics-dashboard.onrender.com/api/baseline-file?name=config_2 14_aug.csv').then(r => r.json())
+         ]);
         
         // Extract data from API responses
         const config1_13Data = config1_13.data || [];
