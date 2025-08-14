@@ -27,40 +27,25 @@ const BaselineDashboard = () => {
 
 
 
-  // Load CSV files directly from public folder
+  // Load CSV files from backend API
   const loadData = async () => {
     try {
       setLoading(true);
-      console.log('Loading CSV files from public folder...');
+      console.log('Loading CSV files from deployed Render backend...');
       
-      // Load all CSV files directly from public folder
+      // Load all CSV files from deployed Render backend
       const [config1_13, config1_14, config2_13, config2_14] = await Promise.all([
-        fetch('/Baseline/config_1 13_aug.csv').then(r => r.text()),
-        fetch('/Baseline/config_1 14_aug.csv').then(r => r.text()),
-        fetch('/Baseline/config_2 13_aug.csv').then(r => r.text()),
-        fetch('/Baseline/config_2 14_aug.csv').then(r => r.text())
+        fetch('https://voc-analytics-dashboard.onrender.com/api/baseline-file?name=config_1 13_aug.csv').then(r => r.json()),
+        fetch('https://voc-analytics-dashboard.onrender.com/api/baseline-file?name=config_1 14_aug.csv').then(r => r.json()),
+        fetch('https://voc-analytics-dashboard.onrender.com/api/baseline-file?name=config_2 13_aug.csv').then(r => r.json()),
+        fetch('https://voc-analytics-dashboard.onrender.com/api/baseline-file?name=config_2 14_aug.csv').then(r => r.json())
       ]);
       
-      // Parse CSV data
-      const parseCSV = (csvText) => {
-        const lines = csvText.split('\n');
-        const headers = lines[0].split(',').map(h => h.trim());
-        const rows = [];
-        for (let i = 1; i < lines.length; i++) {
-          if (lines[i].trim()) {
-            const values = lines[i].split(',').map(v => v.trim());
-            const row = {};
-            headers.forEach((header, index) => { row[header] = values[index] || ''; });
-            rows.push(row);
-          }
-        }
-        return rows;
-      };
-      
-      const config1_13Data = parseCSV(config1_13);
-      const config1_14Data = parseCSV(config1_14);
-      const config2_13Data = parseCSV(config2_13);
-      const config2_14Data = parseCSV(config2_14);
+      // Extract data from API responses
+      const config1_13Data = config1_13.data || [];
+      const config1_14Data = config1_14.data || [];
+      const config2_13Data = config2_13.data || [];
+      const config2_14Data = config2_14.data || [];
       
       console.log('Data loaded:', {
         config1_13: config1_13Data.length,

@@ -616,24 +616,12 @@ export default function Phase2Dashboard() {
         setLoading(true);
         setError(null);
         
-        console.log('Loading CSV file from public folder...');
+        console.log('Loading CSV file from deployed Render backend...');
         
-        // Load CSV file directly from public folder
-        const response = await fetch(`/Phase2/${selectedFile}`);
-        const csvText = await response.text();
-        
-        // Parse CSV data
-        const lines = csvText.split('\n');
-        const headers = lines[0].split(',').map(h => h.trim());
-        const rows = [];
-        for (let i = 1; i < lines.length; i++) {
-          if (lines[i].trim()) {
-            const values = lines[i].split(',').map(v => v.trim());
-            const row = {};
-            headers.forEach((header, index) => { row[header] = values[index] || ''; });
-            rows.push(row);
-          }
-        }
+        // Load CSV file from deployed Render backend
+        const response = await fetch(`https://voc-analytics-dashboard.onrender.com/api/phase2-file?name=${selectedFile}`);
+        const data = await response.json();
+        const rows = data.data || [];
         
         setData(rows);
         setLoading(false);
