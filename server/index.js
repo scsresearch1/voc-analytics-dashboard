@@ -8,45 +8,19 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 const DATA_DIR = path.resolve(__dirname, '../');
 
-// Enhanced CORS configuration for production
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    // Allow specific origins
-    const allowedOrigins = [
-      'https://venerable-smakager-91d079.netlify.app',
-      'https://netlify.app',
-      'http://localhost:3000',
-      'http://localhost:3001'
-    ];
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.log('CORS blocked origin:', origin);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
+// Simple CORS configuration - allow all origins
+app.use(cors({
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  optionsSuccessStatus: 200
-};
+  credentials: false
+}));
 
-app.use(cors(corsOptions));
-
-// Handle preflight requests
-app.options('*', cors());
-
-// Add CORS headers to all responses
+// Additional CORS headers middleware for all responses
 app.use((req, res, next) => {
-  // Set CORS headers on every request
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.header('Access-Control-Allow-Credentials', 'true');
   
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
@@ -57,23 +31,39 @@ app.use((req, res, next) => {
   next();
 });
 
-// Override res.json to always include CORS headers
-const originalJson = express.response.json;
-express.response.json = function(data) {
-  this.header('Access-Control-Allow-Origin', '*');
-  this.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  this.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  return originalJson.call(this, data);
-};
-
-// Override res.send to always include CORS headers
-const originalSend = express.response.send;
-express.response.send = function(data) {
-  this.header('Access-Control-Allow-Origin', '*');
-  this.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  this.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  return originalSend.call(this, data);
-};
+// Force CORS headers on ALL responses using response interception
+app.use((req, res, next) => {
+  // Store original methods
+  const originalSend = res.send;
+  const originalJson = res.json;
+  const originalEnd = res.end;
+  
+  // Override send method
+  res.send = function(data) {
+    this.header('Access-Control-Allow-Origin', '*');
+    this.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    this.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    return originalSend.call(this, data);
+  };
+  
+  // Override json method
+  res.json = function(data) {
+    this.header('Access-Control-Allow-Origin', '*');
+    this.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    this.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    return originalJson.call(this, data);
+  };
+  
+  // Override end method
+  res.end = function(data) {
+    this.header('Access-Control-Allow-Origin', '*');
+    this.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    this.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    return originalEnd.call(this, data);
+  };
+  
+  next();
+});
 
 // Health check endpoint
 app.get('/', (req, res) => {
@@ -89,6 +79,20 @@ app.get('/', (req, res) => {
 app.get('/cors-test', (req, res) => {
   res.json({
     message: 'CORS test successful',
+    headers: {
+      'Access-Control-Allow-Origin': res.getHeader('Access-Control-Allow-Origin'),
+      'Access-Control-Allow-Methods': res.getHeader('Access-Control-Allow-Methods'),
+      'Access-Control-Allow-Headers': res.getHeader('Access-Control-Allow-Headers')
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Phase2 CORS test endpoint
+app.get('/phase2-cors-test', (req, res) => {
+  res.json({
+    message: 'Phase2 CORS test successful',
+    endpoint: '/Phase2/:filename',
     headers: {
       'Access-Control-Allow-Origin': res.getHeader('Access-Control-Allow-Origin'),
       'Access-Control-Allow-Methods': res.getHeader('Access-Control-Allow-Methods'),
