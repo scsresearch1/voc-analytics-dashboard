@@ -9,29 +9,71 @@ const PORT = process.env.PORT || 4000;
 const DATA_DIR = path.resolve(__dirname, '../');
 
 // Enhanced CORS configuration for production
-app.use(cors({
-  origin: true, // Allow all origins
-  credentials: true, // Allow credentials
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow all methods
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'], // Allow all headers
-  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
-}));
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Allow specific origins
+    const allowedOrigins = [
+      'https://venerable-smakager-91d079.netlify.app',
+      'https://netlify.app',
+      'http://localhost:3000',
+      'http://localhost:3001'
+    ];
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 
 // Handle preflight requests
 app.options('*', cors());
 
 // Add CORS headers to all responses
 app.use((req, res, next) => {
+  // Set CORS headers on every request
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
   
+  // Handle preflight requests
   if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
-  } else {
-    next();
+    res.status(200).end();
+    return;
   }
+  
+  next();
 });
+
+// Override res.json to always include CORS headers
+const originalJson = express.response.json;
+express.response.json = function(data) {
+  this.header('Access-Control-Allow-Origin', '*');
+  this.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  this.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  return originalJson.call(this, data);
+};
+
+// Override res.send to always include CORS headers
+const originalSend = express.response.send;
+express.response.send = function(data) {
+  this.header('Access-Control-Allow-Origin', '*');
+  this.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  this.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  return originalSend.call(this, data);
+};
 
 // Health check endpoint
 app.get('/', (req, res) => {
@@ -40,6 +82,19 @@ app.get('/', (req, res) => {
     message: 'KnoseGit Backend Server is running',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// CORS test endpoint
+app.get('/cors-test', (req, res) => {
+  res.json({
+    message: 'CORS test successful',
+    headers: {
+      'Access-Control-Allow-Origin': res.getHeader('Access-Control-Allow-Origin'),
+      'Access-Control-Allow-Methods': res.getHeader('Access-Control-Allow-Methods'),
+      'Access-Control-Allow-Headers': res.getHeader('Access-Control-Allow-Headers')
+    },
+    timestamp: new Date().toISOString()
   });
 });
 
