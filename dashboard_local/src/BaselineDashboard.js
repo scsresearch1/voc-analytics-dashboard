@@ -25,25 +25,7 @@ const BaselineDashboard = () => {
     return denominator === 0 ? 0 : numerator / denominator;
   };
 
-  // Simple CSV parser
-  const parseCSV = (csvText) => {
-    const lines = csvText.split('\n');
-    const headers = lines[0].split(',').map(h => h.trim());
-    const rows = [];
-    
-    for (let i = 1; i < lines.length; i++) {
-      if (lines[i].trim()) {
-        const values = lines[i].split(',').map(v => v.trim());
-        const row = {};
-        headers.forEach((header, index) => {
-          row[header] = values[index] || '';
-        });
-        rows.push(row);
-      }
-    }
-    
-    return rows;
-  };
+
 
   // Load CSV files directly from public folder
   useEffect(() => {
