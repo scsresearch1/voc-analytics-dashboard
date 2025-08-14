@@ -5,10 +5,43 @@ const path = require('path');
 const { parse } = require('csv-parse/sync');
 
 const app = express();
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 const DATA_DIR = path.resolve(__dirname, '../');
 
-app.use(cors());
+// Enhanced CORS configuration for production
+app.use(cors({
+  origin: true, // Allow all origins
+  credentials: true, // Allow credentials
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow all methods
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'], // Allow all headers
+  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+}));
+
+// Handle preflight requests
+app.options('*', cors());
+
+// Add CORS headers to all responses
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
+
+// Health check endpoint
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    message: 'KnoseGit Backend Server is running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
 
 // In-memory cache for parsed CSV files and summaries
 const csvCache = {};
@@ -325,6 +358,38 @@ app.get('/api/boxplot', async (req, res) => {
   }
 });
 
+// 404 handler for unmatched routes
+app.use('*', (req, res) => {
+  res.status(404).json({ 
+    error: 'Route not found', 
+    message: `The route ${req.originalUrl} does not exist`,
+    availableRoutes: [
+      '/',
+      '/api/files',
+      '/api/phase2-files',
+      '/api/file',
+      '/api/phase2-file',
+      '/Phase2/:filename',
+      '/api/summary',
+      '/api/sensors',
+      '/api/correlation',
+      '/api/boxplot'
+    ]
+  });
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('Global error handler:', err);
+  res.status(500).json({ 
+    error: 'Internal server error', 
+    message: err.message,
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Backend server running on http://localhost:${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`CORS enabled for all origins`);
 }); 

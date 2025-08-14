@@ -60,15 +60,23 @@ In Render dashboard, go to Environment:
 
 ### Frontend Config
 The frontend automatically detects the environment:
-- **Development**: Uses localhost:4000 (no proxy needed)
+- **Development**: Uses `http://localhost:4000`
 - **Production**: Uses `https://knosegit-backend.onrender.com`
 
 ### Backend Routes
 The backend serves:
+- `/` - Health check endpoint
 - `/api/baseline-file` - Baseline CSV files
 - `/Phase2/*` - Phase2 CSV files
 - `/api/phase2-files` - List of Phase2 files
 - `/api/files` - List of all CSV files
+
+### CORS Configuration
+The backend now includes enhanced CORS support:
+- ✅ Allows all origins (`*`)
+- ✅ Handles preflight requests
+- ✅ Includes proper CORS headers in all responses
+- ✅ Supports credentials and all HTTP methods
 
 ## 📁 File Structure for Deployment
 
@@ -108,9 +116,33 @@ npm install
 
 ## 🔍 Testing Deployment
 
+### Local Testing
+1. **Start the backend server:**
+   ```bash
+   cd server
+   npm install
+   node index.js
+   ```
+
+2. **Test backend endpoints:**
+   ```bash
+   node test_backend.js
+   ```
+
+3. **Test CORS locally:**
+   - Open browser console on any page
+   - Run: `fetch('http://localhost:4000/').then(r => r.json()).then(console.log)`
+   - Should return health check data without CORS errors
+
+### Production Testing
 1. **Frontend**: Visit your Netlify URL
 2. **Backend**: Test API endpoints at `https://knosegit-backend.onrender.com`
 3. **Integration**: Verify frontend can fetch data from Render backend
+
+### CORS Verification
+- Check browser console for CORS errors
+- Verify `Access-Control-Allow-Origin: *` header is present
+- Test with different origins (localhost, Netlify, etc.)
 
 ## 🐛 Troubleshooting
 
@@ -119,9 +151,23 @@ npm install
 - **File not found**: Ensure CSV files are in correct directories
 - **Build failures**: Check Node.js version (use 18+)
 
+### CORS Issues
+If you still see CORS errors:
+1. **Verify backend is running**: Check Render dashboard for service status
+2. **Check CORS headers**: Use browser dev tools to verify headers are present
+3. **Test endpoint directly**: Try accessing `https://knosegit-backend.onrender.com/` directly
+4. **Clear browser cache**: Hard refresh or clear cache/cookies
+5. **Check Render logs**: Look for CORS-related errors in backend logs
+
+### Network Issues
+- **Timeout errors**: Backend includes 30-second timeout and retry logic
+- **Connection refused**: Verify backend URL is correct
+- **SSL errors**: Ensure using HTTPS for production URLs
+
 ### Logs
 - **Netlify**: Check build logs in dashboard
 - **Render**: Check service logs in dashboard
+- **Browser**: Check console for detailed error messages
 
 ## 📞 Support
 

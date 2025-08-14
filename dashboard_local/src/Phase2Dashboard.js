@@ -909,7 +909,42 @@ export default function Phase2Dashboard() {
       // Use Render backend URL for production, fallback to local for development
       const baseURL = config.backendURL;
       
-      const response = await fetch(`${baseURL}/Phase2/${selectedFile}`);
+      // Create fetch with timeout
+      const fetchWithTimeout = async (url, options = {}) => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), config.timeout);
+        
+        try {
+          const response = await fetch(url, {
+            ...options,
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+          return response;
+        } catch (error) {
+          clearTimeout(timeoutId);
+          if (error.name === 'AbortError') {
+            throw new Error('Request timeout');
+          }
+          throw error;
+        }
+      };
+      
+      // Fetch with retry logic
+      const fetchWithRetry = async (url, retries = config.maxRetries) => {
+        try {
+          return await fetchWithTimeout(url);
+        } catch (error) {
+          if (retries > 0) {
+            console.log(`Retrying ${url}, ${retries} attempts left`);
+            await new Promise(resolve => setTimeout(resolve, config.retryDelay));
+            return fetchWithRetry(url, retries - 1);
+          }
+          throw error;
+        }
+      };
+      
+      const response = await fetchWithRetry(`${baseURL}/Phase2/${selectedFile}`);
       if (!response.ok) {
         throw new Error('Failed to load data');
       }

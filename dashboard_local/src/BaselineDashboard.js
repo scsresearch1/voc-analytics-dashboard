@@ -36,11 +36,45 @@ const BaselineDashboard = () => {
         // Use Render backend URL for production
         const baseURL = config.backendURL;
         
-        // Fetch all four CSV files
-        const config1_13 = await fetch(`${baseURL}/api/baseline-file?filename=config_1 13_aug.csv`);
-        const config1_14 = await fetch(`${baseURL}/api/baseline-file?filename=config_1 14_aug.csv`);
-        const config2_13 = await fetch(`${baseURL}/api/baseline-file?filename=config_2 13_aug.csv`);
-        const config2_14 = await fetch(`${baseURL}/api/baseline-file?filename=config_2 14_aug.csv`);
+        // Create fetch with timeout
+        const fetchWithTimeout = async (url, options = {}) => {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), config.timeout);
+          
+          try {
+            const response = await fetch(url, {
+              ...options,
+              signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            return response;
+          } catch (error) {
+            clearTimeout(timeoutId);
+            if (error.name === 'AbortError') {
+              throw new Error('Request timeout');
+            }
+            throw error;
+          }
+        };
+        
+        // Fetch all four CSV files with retry logic
+        const fetchWithRetry = async (url, retries = config.maxRetries) => {
+          try {
+            return await fetchWithTimeout(url);
+          } catch (error) {
+            if (retries > 0) {
+              console.log(`Retrying ${url}, ${retries} attempts left`);
+              await new Promise(resolve => setTimeout(resolve, config.retryDelay));
+              return fetchWithRetry(url, retries - 1);
+            }
+            throw error;
+          }
+        };
+        
+        const config1_13 = await fetchWithRetry(`${baseURL}/api/baseline-file?filename=config_1 13_aug.csv`);
+        const config1_14 = await fetchWithRetry(`${baseURL}/api/baseline-file?filename=config_1 14_aug.csv`);
+        const config2_13 = await fetchWithRetry(`${baseURL}/api/baseline-file?filename=config_2 13_aug.csv`);
+        const config2_14 = await fetchWithRetry(`${baseURL}/api/baseline-file?filename=config_2 14_aug.csv`);
         
         console.log('Response statuses:', {
           config1_13: config1_13.status,
