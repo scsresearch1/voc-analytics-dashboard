@@ -226,23 +226,38 @@ app.get('/api/baseline-files', async (req, res) => {
 
 // Serve the contents of a selected Baseline CSV file as JSON
 app.get('/api/baseline-file', async (req, res) => {
-  const { filename } = req.query;
-  if (!filename) return res.status(400).json({ error: 'Missing filename' });
+  const { name } = req.query;
+  if (!name) return res.status(400).json({ error: 'Missing filename' });
   
   try {
-    const filePath = path.join(DATA_DIR, 'dashboard_local', 'public', 'Baseline', filename);
-    
-    // Check cache first
-    if (!csvCache[filename]) {
+    // Try multiple possible file paths for Render deployment
+    let filePath;
+    try {
+      // First try the original path
+      filePath = path.join(DATA_DIR, 'dashboard_local', 'public', 'Baseline', name);
       if (!(await fs.stat(filePath)).isFile()) {
-        return res.status(404).json({ error: 'File not found' });
+        // Try alternative path for Render
+        filePath = path.join(DATA_DIR, 'Baseline', name);
+        if (!(await fs.stat(filePath)).isFile()) {
+          // Try root level
+          filePath = path.join(DATA_DIR, name);
+          if (!(await fs.stat(filePath)).isFile()) {
+            return res.status(404).json({ error: 'File not found in any expected location' });
+          }
+        }
       }
-      const csvString = await fs.readFile(filePath, 'utf8');
-      const records = parse(csvString, { skip_empty_lines: true });
-      csvCache[filename] = records;
+    } catch (statError) {
+      return res.status(404).json({ error: 'File not found', details: statError.message });
     }
     
-    let data = csvCache[filename];
+    // Check cache first
+    if (!csvCache[name]) {
+      const csvString = await fs.readFile(filePath, 'utf8');
+      const records = parse(csvString, { skip_empty_lines: true });
+      csvCache[name] = records;
+    }
+    
+    let data = csvCache[name];
     
     // Convert array of arrays to array of objects
     const header = data[0];
@@ -255,7 +270,7 @@ app.get('/api/baseline-file', async (req, res) => {
       return obj;
     });
     
-    res.json(objectData);
+    res.json({ data: objectData });
   } catch (err) {
     res.status(500).json({ error: 'Failed to read file', details: err.message });
   }
