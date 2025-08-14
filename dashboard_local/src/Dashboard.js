@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Plot from 'react-plotly.js';
 import { useNavigate } from 'react-router-dom';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://voc-analytics-dashboard.onrender.com';
+// Frontend-only solution - no backend needed
 const normalize = h => h && h.replace(/\s+/g, '').toUpperCase();
 
 // Theme colors
@@ -136,8 +136,7 @@ export default function Dashboard() {
   const [error, setError] = useState('');
   const [theme, setTheme] = useState('dark');
   const t = themes[theme];
-  const [selectedTab, setSelectedTab] = useState('Sensor Charts');
-  const tabs = ['Sensor Charts', 'Summary Stats', 'Heatmap', 'Correlation Matrix', 'Boxplot', 'CSV Data Viewer'];
+
   const navigate = useNavigate();
 
   // Helper to download CSV
@@ -158,18 +157,9 @@ export default function Dashboard() {
     navigator.clipboard.writeText(csv);
   }
 
-  // CSV Viewer enhancements
-  const [csvTab, setCsvTab] = useState(0);
-  const [csvSearch, setCsvSearch] = useState('');
-  const [csvSort, setCsvSort] = useState({ col: null, asc: true });
-  const [csvVisibleCols, setCsvVisibleCols] = useState({});
 
-  // Boxplot sensor selection state
-  const [boxplotSensors, setBoxplotSensors] = useState({});
 
-  function toggleBoxplotSensor(sensor) {
-    setBoxplotSensors(prev => ({ ...prev, [sensor]: !prev[sensor] }));
-  }
+
 
   function handleLogout() {
     // Clear login state (if any)
@@ -182,9 +172,7 @@ export default function Dashboard() {
     navigate('/options');
   }
 
-  function toggleCol(col) {
-    setCsvVisibleCols(prev => ({ ...prev, [col]: !prev[col] }));
-  }
+
 
   function sortRows(rows, colIdx, asc) {
     if (colIdx == null) return rows;
@@ -207,20 +195,25 @@ export default function Dashboard() {
     downloadCSV(filename.replace(/\.csv$/, '_filtered.csv'), rows);
   }
 
-  // Fetch file list on mount
+  // Load file list from public folder
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     setLoading(true);
-    fetch(`${API_URL}/api/files`)
-      .then(res => res.json())
-      .then(files => {
-        setFiles(files);
-        const vocs = Array.from(new Set(files.map(f => f.split('_')[0])));
-        setVocOptions(vocs);
-        setVoc(vocs[0] || '');
-        setLoading(false);
-      })
-      .catch(() => { setError('Failed to load files'); setLoading(false); });
+    // Load files directly from public folder
+    const files = [
+      '1-Octen-3-ol_Config1_Diaper.csv',
+      'Ammonia_Config1_Diaper.csv', 
+      'Cresol_Config1_Diaper.csv',
+      'Cresol_Config2_Diaper.csv',
+      'DS_Config1_Diaper.csv',
+      'Toluene_Config1_Diaper.csv',
+      'Toluene_Config2_Diaper.csv'
+    ];
+    setFiles(files);
+    const vocs = Array.from(new Set(files.map(f => f.split('_')[0])));
+    setVocOptions(vocs);
+    setVoc(vocs[0] || '');
+    setLoading(false);
   }, []);
 
   // Fetch and cache all files for selected VoC
@@ -231,10 +224,21 @@ export default function Dashboard() {
     setLoading(true);
     Promise.all(vocFiles.map(file => {
       if (fileCache[file]) return Promise.resolve({ file, data: fileCache[file] });
-      return fetch(`${API_URL}/api/file?name=${encodeURIComponent(file)}`)
-        .then(res => res.json())
-        .then(data => {
-          const allStats = computeAllStats(data.data || data);
+      return fetch(`/${file}`)
+        .then(res => res.text())
+        .then(csvText => {
+          // Parse CSV data
+          const lines = csvText.split('\n');
+          const headers = lines[0].split(',').map(h => h.trim());
+          const rows = lines.slice(1).filter(r => r.trim()).map(line => {
+            const values = line.split(',').map(v => v.trim());
+            const row = {};
+            headers.forEach((header, index) => {
+              row[header] = values[index] || '';
+            });
+            return row;
+          });
+          const allStats = computeAllStats(rows);
           return { file, data: allStats };
         });
     })).then(results => {

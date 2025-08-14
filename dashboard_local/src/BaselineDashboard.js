@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Plot from 'react-plotly.js';
-import config from './config';
 
 const BaselineDashboard = () => {
   const [selectedConfig, setSelectedConfig] = useState('config_1');
@@ -26,78 +25,46 @@ const BaselineDashboard = () => {
     return denominator === 0 ? 0 : numerator / denominator;
   };
 
-  // Fetch baseline data
+  // Simple CSV parser
+  const parseCSV = (csvText) => {
+    const lines = csvText.split('\n');
+    const headers = lines[0].split(',').map(h => h.trim());
+    const rows = [];
+    
+    for (let i = 1; i < lines.length; i++) {
+      if (lines[i].trim()) {
+        const values = lines[i].split(',').map(v => v.trim());
+        const row = {};
+        headers.forEach((header, index) => {
+          row[header] = values[index] || '';
+        });
+        rows.push(row);
+      }
+    }
+    
+    return rows;
+  };
+
+  // Load CSV files directly from public folder
   useEffect(() => {
-    const fetchData = async () => {
+    const loadData = async () => {
       try {
         setLoading(true);
-        console.log('Fetching baseline data...');
+        console.log('Loading CSV files directly from frontend...');
         
-        const baseURL = config.backendURL; // Use config for baseURL
-
-        // Create fetch with timeout
-        const fetchWithTimeout = async (url, options = {}) => {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), config.timeout);
-
-          try {
-            const response = await fetch(url, {
-              ...options,
-              signal: controller.signal
-            });
-            clearTimeout(timeoutId);
-            return response;
-          } catch (error) {
-            clearTimeout(timeoutId);
-            if (error.name === 'AbortError') {
-              throw new Error('Request timeout');
-            }
-            throw error;
-          }
-        };
-
-        // Fetch with retry logic
-        const fetchWithRetry = async (url, retries = config.maxRetries) => {
-          try {
-            return await fetchWithTimeout(url);
-          } catch (error) {
-            if (retries > 0) {
-              console.log(`Retrying ${url}, ${retries} attempts left`);
-              await new Promise(resolve => setTimeout(resolve, config.retryDelay));
-              return fetchWithRetry(url, retries - 1);
-            }
-            throw error;
-          }
-        };
-
-        // Use CORS proxy in production to bypass Render's CORS restrictions
-        const getFullURL = (endpoint, filename) => {
-          if (config.useCorsProxy && config.environment === 'production') {
-            return `${config.corsProxy}${baseURL}${endpoint}?filename=${encodeURIComponent(filename)}`;
-          }
-          return `${baseURL}${endpoint}?filename=${encodeURIComponent(filename)}`;
-        };
-
-        const config1_13 = await fetchWithRetry(getFullURL('/api/baseline-file', 'config_1 13_aug.csv'));
-        const config1_14 = await fetchWithRetry(getFullURL('/api/baseline-file', 'config_1 14_aug.csv'));
-        const config2_13 = await fetchWithRetry(getFullURL('/api/baseline-file', 'config_2 13_aug.csv'));
-        const config2_14 = await fetchWithRetry(getFullURL('/api/baseline-file', 'config_2 14_aug.csv'));
+        // Load all CSV files directly
+        const [config1_13, config1_14, config2_13, config2_14] = await Promise.all([
+          fetch('/Baseline/config_1 13_aug.csv').then(r => r.text()),
+          fetch('/Baseline/config_1 14_aug.csv').then(r => r.text()),
+          fetch('/Baseline/config_2 13_aug.csv').then(r => r.text()),
+          fetch('/Baseline/config_2 14_aug.csv').then(r => r.text())
+        ]);
         
-        console.log('Response statuses:', {
-          config1_13: config1_13.status,
-          config1_14: config1_14.status,
-          config2_13: config2_13.status,
-          config2_14: config2_14.status
-        });
-        
-        if (!config1_13.ok || !config1_14.ok || !config2_13.ok || !config2_14.ok) {
-          throw new Error('Failed to fetch one or more CSV files');
-        }
-        
-        const config1_13Data = await config1_13.json();
-        const config1_14Data = await config1_14.json();
-        const config2_13Data = await config2_13.json();
-        const config2_14Data = await config2_14.json();
+        // Parse CSV data
+        const config1_13Data = parseCSV(config1_13);
+        const config1_14Data = parseCSV(config1_14);
+        const config2_13Data = parseCSV(config2_13);
+        const config2_14Data = parseCSV(config2_14);
         
         console.log('Data loaded:', {
           config1_13: config1_13Data.length,
@@ -115,13 +82,13 @@ const BaselineDashboard = () => {
         
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching baseline data:', err);
+        console.error('Error loading CSV files:', err);
         setError(err.message);
         setLoading(false);
       }
     };
 
-    fetchData();
+    loadData();
   }, []);
 
   // Get current data based on selection
@@ -937,11 +904,24 @@ const styles = {
     backgroundColor: '#007bff',
     borderRadius: '5px'
   },
-  qualityDescription: {
-    fontSize: '0.9rem',
-    color: '#666',
-    marginTop: '10px'
-  }
-};
+     qualityDescription: {
+     fontSize: '0.9rem',
+     color: '#666',
+     marginTop: '10px'
+   },
+   // Missing styles for tab content
+   timeSeriesContent: {
+     flex: 1
+   },
+   correlationContent: {
+     flex: 1
+   },
+   distributionContent: {
+     flex: 1
+   },
+   downloadsContent: {
+     flex: 1
+   }
+ };
 
 export default BaselineDashboard;

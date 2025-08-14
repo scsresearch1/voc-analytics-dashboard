@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Plot from 'react-plotly.js';
-import config from './config';
 
 // Memoized Plot component for better performance
 const MemoizedPlot = memo(Plot);
@@ -590,8 +589,7 @@ export default function Phase2Dashboard() {
   const [error, setError] = useState(null);
   const [selectedFile, setSelectedFile] = useState('');
   const [availableFiles, setAvailableFiles] = useState([]);
-  const [activeTab, setActiveTab] = useState('overview');
-  const [selectedHeaterProfile, setSelectedHeaterProfile] = useState('all');
+
   const [hoveredStats, setHoveredStats] = useState({});
   const [hoveredSensors, setHoveredSensors] = useState({});
   const [hoveredProfiles, setHoveredProfiles] = useState({});
@@ -607,11 +605,48 @@ export default function Phase2Dashboard() {
     loadAvailableFiles();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Load data based on selected file
   useEffect(() => {
-    if (selectedFile) {
-      loadData();
-    }
-  }, [selectedFile]); // eslint-disable-line react-hooks/exhaustive-deps
+    const loadData = async () => {
+      if (!selectedFile) return;
+      
+      try {
+        setLoading(true);
+        setError(null);
+        
+        console.log('Loading CSV file directly from frontend...');
+        
+        // Load CSV file directly from public folder
+        const response = await fetch(`/Phase2/${selectedFile}`);
+        const csvText = await response.text();
+        
+        // Parse CSV data
+        const lines = csvText.split('\n');
+        const headers = lines[0].split(',').map(h => h.trim());
+        const rows = [];
+        
+        for (let i = 1; i < lines.length; i++) {
+          if (lines[i].trim()) {
+            const values = lines[i].split(',').map(v => v.trim());
+            const row = {};
+            headers.forEach((header, index) => {
+              row[header] = values[index] || '';
+            });
+            rows.push(row);
+          }
+        }
+        
+        setData(rows);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error loading CSV file:', err);
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [selectedFile]);
 
   // Reset pagination when filters change
   useEffect(() => {
@@ -899,75 +934,6 @@ export default function Phase2Dashboard() {
       if (!selectedFile) {
         setSelectedFile(fallbackFiles[0]);
       }
-    }
-  };
-
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      
-      // Use Render backend URL for production, fallback to local for development
-      const baseURL = config.backendURL;
-      
-      // Create fetch with timeout
-      const fetchWithTimeout = async (url, options = {}) => {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), config.timeout);
-        
-        try {
-          const response = await fetch(url, {
-            ...options,
-            signal: controller.signal
-          });
-          clearTimeout(timeoutId);
-          return response;
-        } catch (error) {
-          clearTimeout(timeoutId);
-          if (error.name === 'AbortError') {
-            throw new Error('Request timeout');
-          }
-          throw error;
-        }
-      };
-      
-      // Fetch with retry logic
-      const fetchWithRetry = async (url, retries = config.maxRetries) => {
-        try {
-          return await fetchWithTimeout(url);
-        } catch (error) {
-          if (retries > 0) {
-            console.log(`Retrying ${url}, ${retries} attempts left`);
-            await new Promise(resolve => setTimeout(resolve, config.retryDelay));
-            return fetchWithRetry(url, retries - 1);
-          }
-          throw error;
-        }
-      };
-      
-      const response = await fetchWithRetry(`${baseURL}/Phase2/${selectedFile}`);
-      if (!response.ok) {
-        throw new Error('Failed to load data');
-      }
-      
-      const csvText = await response.text();
-      
-      // Parse CSV data
-      const lines = csvText.split('\n');
-      const headers = lines[0].split(',');
-      const data = lines.slice(1).filter(line => line.trim()).map(line => {
-        const values = line.split(',');
-        const row = {};
-        headers.forEach((header, index) => {
-          row[header.trim()] = values[index] ? values[index].trim() : '';
-        });
-        return row;
-      });
-
-      setData(data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
     }
   };
 
