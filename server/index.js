@@ -8,59 +8,18 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 const DATA_DIR = path.resolve(__dirname, '../');
 
-// Simple CORS configuration - allow all origins
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  credentials: false
-}));
-
-// Additional CORS headers middleware for all responses
+// NUCLEAR CORS FIX - Intercept ALL responses before they leave the server
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  // Force CORS headers on EVERY response
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   
-  // Handle preflight requests
+  // Handle preflight requests immediately
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
   }
-  
-  next();
-});
-
-// Force CORS headers on ALL responses using response interception
-app.use((req, res, next) => {
-  // Store original methods
-  const originalSend = res.send;
-  const originalJson = res.json;
-  const originalEnd = res.end;
-  
-  // Override send method
-  res.send = function(data) {
-    this.header('Access-Control-Allow-Origin', '*');
-    this.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    this.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-    return originalSend.call(this, data);
-  };
-  
-  // Override json method
-  res.json = function(data) {
-    this.header('Access-Control-Allow-Origin', '*');
-    this.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    this.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-    return originalJson.call(this, data);
-  };
-  
-  // Override end method
-  res.end = function(data) {
-    this.header('Access-Control-Allow-Origin', '*');
-    this.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    this.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-    return originalEnd.call(this, data);
-  };
   
   next();
 });
@@ -72,6 +31,18 @@ app.get('/', (req, res) => {
     message: 'KnoseGit Backend Server is running',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Simple CORS test endpoint
+app.get('/test', (req, res) => {
+  res.json({
+    message: 'CORS test',
+    corsHeaders: {
+      origin: res.getHeader('Access-Control-Allow-Origin'),
+      methods: res.getHeader('Access-Control-Allow-Methods'),
+      headers: res.getHeader('Access-Control-Allow-Headers')
+    }
   });
 });
 
