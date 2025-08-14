@@ -98,14 +98,33 @@ app.get('/api/phase2-file', async (req, res) => {
     const objectData = rows.map(row => {
       const obj = {};
       header.forEach((col, index) => {
-        obj[col] = row[index];
+        obj[col.trim()] = row[index] ? row[index].trim() : '';
       });
       return obj;
     });
     
-    res.json(objectData);
+    res.json({ name, data: objectData });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to read file', details: err.message });
+    res.status(500).json({ error: 'Failed to read Phase2 file', details: err.message });
+  }
+});
+
+// Serve Phase2 CSV files directly (for frontend access)
+app.get('/Phase2/:filename', async (req, res) => {
+  const { filename } = req.params;
+  const filePath = path.join(DATA_DIR, 'dashboard_local', 'public', 'Phase2', filename);
+  
+  try {
+    if (!(await fs.stat(filePath)).isFile()) {
+      return res.status(404).json({ error: 'File not found' });
+    }
+    
+    const csvString = await fs.readFile(filePath, 'utf8');
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(csvString);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to read Phase2 file', details: err.message });
   }
 });
 
@@ -115,7 +134,27 @@ app.get('/api/baseline-files', async (req, res) => {
     const baselineDir = path.join(DATA_DIR, 'dashboard_local', 'public', 'Baseline');
     const allFiles = await fs.readdir(baselineDir);
     const files = allFiles.filter(f => f.endsWith('.csv'));
-    res.json(files);
+    
+    // Sort files by date and type for better organization
+    const sortedFiles = files.sort((a, b) => {
+      // Prioritize merged files
+      const aIsMerged = a.includes('merge');
+      const bIsMerged = b.includes('merge');
+      if (aIsMerged && !bIsMerged) return -1;
+      if (!aIsMerged && bIsMerged) return 1;
+      
+      // Then sort by date (newer first)
+      const aDate = a.match(/(\d{2})_(\w{3})/);
+      const bDate = b.match(/(\d{2})_(\w{3})/);
+      if (aDate && bDate) {
+        const aDay = parseInt(aDate[1]);
+        const bDay = parseInt(bDate[1]);
+        return bDay - aDay;
+      }
+      return a.localeCompare(b);
+    });
+    
+    res.json(sortedFiles);
   } catch (err) {
     console.error('Error listing Baseline files:', err);
     res.status(500).json({ error: 'Failed to list Baseline files', details: err.message });

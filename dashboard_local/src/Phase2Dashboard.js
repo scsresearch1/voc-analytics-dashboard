@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Plot from 'react-plotly.js';
+import config from './config';
 
 // Memoized Plot component for better performance
 const MemoizedPlot = memo(Plot);
@@ -905,8 +906,10 @@ export default function Phase2Dashboard() {
     try {
       setLoading(true);
       
-      // For Netlify deployment, load CSV directly from public folder
-      const response = await fetch(`/Phase2/${selectedFile}`);
+      // Use Render backend URL for production, fallback to local for development
+      const baseURL = config.backendURL;
+      
+      const response = await fetch(`${baseURL}/Phase2/${selectedFile}`);
       if (!response.ok) {
         throw new Error('Failed to load data');
       }
