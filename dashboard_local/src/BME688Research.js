@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 
@@ -452,11 +452,7 @@ export default function BME688Research() {
     }
   };
 
-  useEffect(() => {
-    loadExcelData();
-  }, []);
-
-  const loadExcelData = async () => {
+  const loadExcelData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -496,7 +492,13 @@ export default function BME688Research() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadExcelData();
+  }, [loadExcelData]);
+
+
 
   const extractHpDataFromExcel = (jsonData) => {
     const hpData = {};
