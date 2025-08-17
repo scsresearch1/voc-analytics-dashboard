@@ -107,6 +107,10 @@ export default function OptionsPage() {
         // Navigate to baseline dashboard
         navigate('/baseline-dashboard');
         break;
+      case 'bme688-research':
+        // Navigate to BME 688 Research Data page
+        navigate('/bme688-research');
+        break;
       case 'phase1':
         // Navigate to existing dashboard
         navigate('/dashboard');
@@ -137,6 +141,13 @@ export default function OptionsPage() {
       title: 'Baseline Values',
       description: 'Comprehensive baseline sensor data analysis with scientific visualizations and download options.',
       icon: '📈',
+      comingSoon: false,
+    },
+    {
+      id: 'bme688-research',
+      title: 'BME 688 Research Data',
+      description: 'Access BME 688 sensor research data including heater profiles, specifications, and detailed analysis.',
+      icon: '🔬',
       comingSoon: false,
     },
     {
