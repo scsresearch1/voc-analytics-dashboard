@@ -492,7 +492,7 @@ export default function BME688Research() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [mockHpData]);
 
   useEffect(() => {
     loadExcelData();
