@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 
@@ -296,7 +296,7 @@ export default function BME688Research() {
   ];
 
   // Mock HP data - fallback if Excel fails
-  const mockHpData = {
+  const mockHpData = useMemo(() => ({
     'HP-001': {
       temperature: '200°C',
       rampRate: '2°C/s',
@@ -450,7 +450,7 @@ export default function BME688Research() {
       selectivity: 'Medium',
       notes: 'High performance optimized'
     }
-  };
+  }), []);
 
   const loadExcelData = useCallback(async () => {
     try {
