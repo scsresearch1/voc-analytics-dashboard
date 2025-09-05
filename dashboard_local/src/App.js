@@ -5,8 +5,10 @@ import OptionsPage from './OptionsPage';
 import DataFormat from './DataFormat';
 import Dashboard from './Dashboard';
 import Phase2Dashboard from './Phase2Dashboard';
+import Phase3BioDashboard from './Phase3BioDashboard';
 import BaselineDashboard from './BaselineDashboard';
 import BME688Research from './BME688Research';
+import SchematicDesign from './SchematicDesign';
 import './App.css';
 
 function App() {
@@ -20,6 +22,8 @@ function App() {
         <Route path="/bme688-research" element={<BME688Research />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/phase2-dashboard" element={<Phase2Dashboard />} />
+        <Route path="/phase3-bio-dashboard" element={<Phase3BioDashboard />} />
+        <Route path="/schematic-design" element={<SchematicDesign />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>

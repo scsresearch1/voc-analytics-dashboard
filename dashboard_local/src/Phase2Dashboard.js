@@ -616,10 +616,10 @@ export default function Phase2Dashboard() {
         setLoading(true);
         setError(null);
         
-        console.log('Loading CSV file from deployed Render backend...');
+        console.log('Loading CSV file from local backend...');
         
-        // Load CSV file from deployed Render backend
-        const response = await fetch(`https://voc-analytics-dashboard.onrender.com/api/phase2-file?name=${selectedFile}`);
+        // Load CSV file from backend
+        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:4000'}/api/phase2-file?name=${selectedFile}`);
         const data = await response.json();
         const rows = data.data || [];
         
@@ -1753,6 +1753,7 @@ export default function Phase2Dashboard() {
             </div>
           </div>
         </div>
+
       </div>
     </div>
   );

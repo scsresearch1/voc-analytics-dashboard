@@ -119,6 +119,14 @@ export default function OptionsPage() {
         // Navigate to Phase 2 dashboard
         navigate('/phase2-dashboard');
         break;
+      case 'schematic-design':
+        // Navigate to Schematic Design page
+        navigate('/schematic-design');
+        break;
+      case 'phase3-bio':
+        // Navigate to Phase 3 Bio Lab Testing dashboard
+        navigate('/phase3-bio-dashboard');
+        break;
       case 'phase3':
         // Show coming soon message
         alert('Phase 3 Path Lab Testing - Coming Soon!');
@@ -162,6 +170,20 @@ export default function OptionsPage() {
       title: 'Phase 2 Bio Lab Testing',
       description: 'Advanced bio lab testing dashboard with enhanced analytics features.',
       icon: '🔬',
+      comingSoon: false,
+    },
+    {
+      id: 'schematic-design',
+      title: 'Schematic Design',
+      description: 'Interactive circuit diagram showing sensor connections and system architecture.',
+      icon: '🔧',
+      comingSoon: false,
+    },
+    {
+      id: 'phase3-bio',
+      title: 'Phase 3 Bio Lab Testing',
+      description: 'Advanced bio lab testing dashboard with enhanced analytics and diagnostic features.',
+      icon: '🧬',
       comingSoon: false,
     },
     {

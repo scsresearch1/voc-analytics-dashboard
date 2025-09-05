@@ -30,14 +30,15 @@ const BaselineDashboard = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      console.log('Loading CSV files from deployed Render backend...');
+      console.log('Loading CSV files from local backend...');
       
-      // Load all CSV files from deployed Render backend
+      // Load all CSV files from backend
+      const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
       const [config1_13, config1_14, config2_13, config2_14] = await Promise.all([
-        fetch('https://voc-analytics-dashboard.onrender.com/api/baseline-file?name=config_1 13_aug.csv').then(r => r.json()),
-        fetch('https://voc-analytics-dashboard.onrender.com/api/baseline-file?name=config_1 14_aug.csv').then(r => r.json()),
-        fetch('https://voc-analytics-dashboard.onrender.com/api/baseline-file?name=config_2 13_aug.csv').then(r => r.json()),
-        fetch('https://voc-analytics-dashboard.onrender.com/api/baseline-file?name=config_2 14_aug.csv').then(r => r.json())
+        fetch(`${baseURL}/api/baseline-file?name=config_1 13_aug.csv`).then(r => r.json()),
+        fetch(`${baseURL}/api/baseline-file?name=config_1 14_aug.csv`).then(r => r.json()),
+        fetch(`${baseURL}/api/baseline-file?name=config_2 13_aug.csv`).then(r => r.json()),
+        fetch(`${baseURL}/api/baseline-file?name=config_2 14_aug.csv`).then(r => r.json())
       ]);
       
       // Extract data from API responses
