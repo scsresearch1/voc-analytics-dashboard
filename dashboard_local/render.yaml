@@ -13,4 +13,4 @@ services:
     healthCheckPath: /
     autoDeploy: true
     branch: main
-    rootDir: .
+    rootDir: dashboard_local

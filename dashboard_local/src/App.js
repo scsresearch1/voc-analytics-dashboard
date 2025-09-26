@@ -9,6 +9,7 @@ import Phase3BioDashboard from './Phase3BioDashboard';
 import BaselineDashboard from './BaselineDashboard';
 import BME688Research from './BME688Research';
 import SchematicDesign from './SchematicDesign';
+import StabilizationProcess from './StabilizationProcess';
 import './App.css';
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
         <Route path="/phase2-dashboard" element={<Phase2Dashboard />} />
         <Route path="/phase3-bio-dashboard" element={<Phase3BioDashboard />} />
         <Route path="/schematic-design" element={<SchematicDesign />} />
+        <Route path="/stabilization-process" element={<StabilizationProcess />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>

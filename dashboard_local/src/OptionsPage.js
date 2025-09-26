@@ -127,6 +127,10 @@ export default function OptionsPage() {
         // Navigate to Phase 3 Bio Lab Testing dashboard
         navigate('/phase3-bio-dashboard');
         break;
+      case 'stabilization-process':
+        // Navigate to Stabilization Process Data page
+        navigate('/stabilization-process');
+        break;
       case 'phase3':
         // Show coming soon message
         alert('Phase 3 Path Lab Testing - Coming Soon!');
@@ -177,6 +181,13 @@ export default function OptionsPage() {
       title: 'Schematic Design',
       description: 'Interactive circuit diagram showing sensor connections and system architecture.',
       icon: '🔧',
+      comingSoon: false,
+    },
+    {
+      id: 'stabilization-process',
+      title: 'Stabilization Process Data',
+      description: 'Monitor and analyze sensor stabilization data with real-time monitoring and trend analysis.',
+      icon: '⚖️',
       comingSoon: false,
     },
     {
