@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: voc-dashboard-frontend
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npx serve -s build -l 3000
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: REACT_APP_API_URL
+        value: https://voc-analytics-dashboard.onrender.com
+    healthCheckPath: /
+    autoDeploy: true
+    branch: main
+    rootDir: dashboard_local
